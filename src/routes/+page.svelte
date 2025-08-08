@@ -30,6 +30,15 @@
 <div class="p-6 space-y-6">
   <h1 class="text-3xl font-bold">Remote Functions Test Lab</h1>
 
+  <div class="mb-4">
+    <a
+      href="/durable-object"
+      class="px-4 py-2 bg-purple-600 text-white rounded hover:bg-purple-700"
+    >
+      🏗️ Durable Object Demo
+    </a>
+  </div>
+
   <!-- Test 1: Basic Hello -->
   <section class="border p-4 rounded">
     <h2 class="text-xl font-semibold mb-2">1. Basic Hello</h2>
@@ -62,22 +71,24 @@
     </div>
   </section>
 
-  <!-- Test 4: Real-time Data -->
+  <!-- Test 4: Dynamic Data -->
   <section class="border p-4 rounded">
-    <h2 class="text-xl font-semibold mb-2">4. Real-time Data Simulation</h2>
+    <h2 class="text-xl font-semibold mb-2">
+      4. Dynamic Data (Changes Each Call)
+    </h2>
     {#await getRealtimeData()}
-      <p>Loading real-time data...</p>
+      <p>Loading dynamic data...</p>
     {:then data}
       <div class="space-y-1 text-sm">
         <p><strong>Server Time:</strong> {data.serverTime}</p>
         <p><strong>Random Value:</strong> {data.randomValue.toFixed(4)}</p>
-        <p><strong>Uptime:</strong> {data.uptime}</p>
+        <p><strong>Uptime:</strong> {data.uptime}s</p>
       </div>
       <button
         class="mt-2 px-3 py-1 bg-blue-500 text-white rounded text-sm"
         onclick={() => window.location.reload()}
       >
-        Refresh Data
+        Refresh Page
       </button>
     {/await}
   </section>

@@ -5,7 +5,6 @@ import { query, command, getRequestEvent } from '$app/server';
 fun questions..
 - can we use the same function for both client and server?
 - can i use durable object bindings from here?
-- websockets?
 */
 
 // Test 1: Basic hello world
@@ -49,10 +48,10 @@ export const testSharedLogic = query('unchecked', async (name: string) => {
   };
 });
 
-// Test 4: WebSocket-like real-time data simulation
+// Test 4: Real-time data simulation
 export const getRealtimeData = query(async () => {
   console.log('[SERVER] getRealtimeData called');
-  // Simulate real-time data that changes
+  // Simulate data that changes each call
   return {
     timestamp: Date.now(),
     randomValue: Math.random(),
