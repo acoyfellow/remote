@@ -6,40 +6,38 @@ import {
 } from "alchemy/cloudflare";
 import type { CounterDO } from "./worker/index.ts";
 
-const stage = "dev";
+const stage = process.env.ALCHEMY_STAGE || "dev";
+const doScriptName = stage === "dev" ? "worker" : "remote-worker";
 
 const app = await alchemy("remote", {
   stage,
   password: process.env.ALCHEMY_PASSWORD || "default-password",
 });
 
-// CounterDO: Simple counter instances
 const COUNTER_DO = DurableObjectNamespace<CounterDO>("counter-do", {
   className: "CounterDO",
-  scriptName: "remote-worker"
+  scriptName: doScriptName,
+  sqlite: true
 });
 
 // Create the worker
 export const worker = await Worker("worker", {
-  name: "remote-worker",
+  name: doScriptName,
   entrypoint: "./worker/index.ts",
   adopt: true,
   bindings: {
     COUNTER_DO,
   },
-  url: true,
-  dev: {
-    port: 1337,
-  },
+  url: true
 });
 
 console.log("Worker:", worker.url);
 
-// Create the SvelteKit app
+// // Create the SvelteKit app
 export const website = await SvelteKit("website", {
   name: "remote",
-  build: { command: "bun run build" },
-  assets: "./.svelte-kit/output/client",
+  // build: { command: "bun run build" },
+  // assets: "./.svelte-kit/output/client",
   bindings: {
     COUNTER_DO,
   },

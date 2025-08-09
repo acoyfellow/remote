@@ -1,29 +1,30 @@
 import { query, command, getRequestEvent } from '$app/server';
+import { dev } from '$app/environment';
+
+// Reusable helper for making requests to the worker
+async function workerRequest(platform: any, endpoint: string, options: RequestInit = {}) {
+  if (dev) {
+    // In development, use HTTP fetch to localhost
+    const url = `http://localhost:1337${endpoint}`;
+    console.log('🌐 Dev: Calling', url);
+    return await fetch(url, options);
+  } else {
+    // In production, use service binding to avoid error code 1042
+    const url = `http://worker${endpoint}`;
+    console.log('🌐 Prod: Using service binding for', url);
+    const request = new Request(url, options);
+    return await platform!.env!.WORKER.fetch(request);
+  }
+}
 
 // Remote functions to interact with the Counter Durable Object
 export const getCounter = query('unchecked', async (counterId: string) => {
   const event = getRequestEvent();
   const platform = event.platform;
 
-  console.log(event)
-  
-  console.log(`[SERVER] getCounter called for ID: ${counterId}`);
-  console.log(`[SERVER] Platform available:`, !!platform);
-  console.log(`[SERVER] Environment available:`, !!platform?.env);
-  console.log(`[SERVER] COUNTER_DO binding available:`, !!(platform?.env as any)?.COUNTER_DO);
-  console.log(`[SERVER] platform.env:`, platform?.env);
-
-  if (!(platform?.env as any)?.COUNTER_DO) {
-    throw new Error('COUNTER_DO Durable Object binding not available - try deploying with `alchemy deploy`');
-  }
-  
   try {
-    // Get the Durable Object instance
-    const id = (platform.env as any).COUNTER_DO.idFromName(counterId);
-    const stub = (platform.env as any).COUNTER_DO.get(id);
-    
-    // Call the DO with a GET request
-    const response = await stub.fetch(new Request('https://fake-host/'));
+    // Call the worker with counter ID in path, let DO handle GET request
+    const response = await workerRequest(platform, `/counter/${counterId}`);
     const data = await response.json();
     
     console.log(`[SERVER] DO response:`, data);
@@ -40,18 +41,11 @@ export const incrementCounter = command('unchecked', async (counterId: string) =
   
   console.log(`[SERVER] incrementCounter called for ID: ${counterId}`);
   
-  if (!(platform?.env as any)?.COUNTER_DO) {
-    throw new Error('COUNTER_DO Durable Object binding not available');
-  }
-  
   try {
-    const id = (platform.env as any).COUNTER_DO.idFromName(counterId);
-    const stub = (platform.env as any).COUNTER_DO.get(id);
-    
-    // Call the DO increment endpoint
-    const response = await stub.fetch(new Request('https://fake-host/increment', {
+    // Call the worker with counter ID in path and /increment, let DO handle POST
+    const response = await workerRequest(platform, `/counter/${counterId}/increment`, {
       method: 'POST'
-    }));
+    });
     const data = await response.json();
     
     console.log(`[SERVER] DO increment response:`, data);

@@ -1,5 +1,6 @@
-import adapter from '@sveltejs/adapter-cloudflare';
+import alchemy from 'alchemy/cloudflare/sveltekit';
 import { vitePreprocess } from '@sveltejs/vite-plugin-svelte';
+import adapter from '@sveltejs/adapter-cloudflare';
 
 /** @type {import('@sveltejs/kit').Config} */
 const config = {
@@ -7,7 +8,12 @@ const config = {
 	// for more information about preprocessors
 	preprocess: vitePreprocess(),
 	kit: { 
-    adapter: adapter(),
+		// adapter: alchemy(),
+    adapter: adapter({
+			platformProxy: {
+				persist: { path: ".wrangler/state/v3" }
+			}
+		}),
     experimental: {
 			remoteFunctions: true
 		}
