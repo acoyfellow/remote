@@ -1,38 +1,79 @@
-# sv
+### Remote Functions + Durable Objects on Cloudflare (SvelteKit + Alchemy)
 
-Everything you need to build a Svelte project, powered by [`sv`](https://github.com/sveltejs/cli).
+An example project showcasing SvelteKit remote functions calling into a Cloudflare Worker with Durable Objects, wired up with Alchemy for a great DX.
 
-## Creating a project
+- SvelteKit 2 + Svelte 5
+- Cloudflare Worker with a `DurableObject` counter
+- Remote functions that call the Worker (dev via localhost, prod via service binding)
+- One-command dev and deploy via Alchemy
 
-If you're seeing this, you've probably already done this step. Congrats!
+### Quickstart
+
+1) Install deps
 
 ```sh
-# create a new project in the current directory
-npx sv create
-
-# create a new project in my-app
-npx sv create my-app
+npm install
 ```
 
-## Developing
+2) Create `.env` (see `.env.example`)
 
-Once you've created a project and installed dependencies with `npm install` (or `pnpm install` or `yarn`), start a development server:
+```sh
+cp .env.example .env
+```
+
+3) Start dev
 
 ```sh
 npm run dev
-
-# or start the server and open the app in a new browser tab
-npm run dev -- --open
 ```
 
-## Building
+This will:
+- run SvelteKit dev
+- run the Worker locally and bind it so remote functions can call it
 
-To create a production version of your app:
+Open the app, then visit:
+- `/` for the remote functions lab
+- `/durable-object` for the DO counter demo
+
+### Deploy
 
 ```sh
-npm run build
+npm run deploy
 ```
 
-You can preview the production build with `npm run preview`.
+Alchemy will provision the Worker and the site, bind the Durable Object, and set service bindings so production remote functions can call the Worker.
 
-> To deploy your app, you may need to install an [adapter](https://svelte.dev/docs/kit/adapters) for your target environment.
+### How it works
+
+- `worker/index.ts` defines a `CounterDO` Durable Object and routes `/counter/:id` requests to it
+- `alchemy.run.ts` creates the Worker and the Website, binds `COUNTER_DO` and exposes the Worker to the site as `WORKER`
+- `src/routes/durable-object/data.remote.ts` contains two server-side remote functions that call the Worker
+
+Key bit that enables prod calls from remote functions:
+
+```ts
+// alchemy.run.ts (website bindings)
+bindings: {
+  COUNTER_DO,
+  WORKER: worker
+}
+```
+
+Dev calls go to `http://localhost:1337`, prod calls use the `WORKER` service binding.
+
+### Scripts
+
+- `dev`: run the website and worker locally via Alchemy
+- `build`: vite build for the website
+- `preview`: vite preview
+- `deploy`: deploy via Alchemy
+- `destroy`: tear down via Alchemy
+- `check`: type-check via svelte-check
+
+### Environment
+
+See `.env.example`. The only required variable is `ALCHEMY_PASSWORD` for local dev auth; `ALCHEMY_STAGE` defaults to `dev`.
+
+### License
+
+MIT — see `LICENSE`.

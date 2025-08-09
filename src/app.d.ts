@@ -7,9 +7,10 @@ declare global {
 		// interface PageData {}
 		// interface PageState {}
 		interface Platform {
-			env: {
-				COUNTER_DO: DurableObjectNamespace;
-			};
+				env: {
+					COUNTER_DO: DurableObjectNamespace;
+					WORKER: Fetcher;
+				};
 		}
 	}
 }

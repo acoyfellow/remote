@@ -1,28 +1,28 @@
 import alchemy from "alchemy";
+
 import { 
   SvelteKit, 
   Worker, 
   DurableObjectNamespace
 } from "alchemy/cloudflare";
+
 import type { CounterDO } from "./worker/index.ts";
 
-const stage = process.env.ALCHEMY_STAGE || "dev";
-const doScriptName = stage === "dev" ? "worker" : "remote-worker";
+const projectName = "remote";
 
-const app = await alchemy("remote", {
-  stage,
+const project = await alchemy(projectName, {
   password: process.env.ALCHEMY_PASSWORD || "default-password",
 });
 
-const COUNTER_DO = DurableObjectNamespace<CounterDO>("counter-do", {
+const COUNTER_DO = DurableObjectNamespace<CounterDO>(`${projectName}-do`, {
   className: "CounterDO",
-  scriptName: doScriptName,
+  scriptName: projectName,
   sqlite: true
 });
 
 // Create the worker
-export const worker = await Worker("worker", {
-  name: doScriptName,
+export const worker = await Worker(`${projectName}-worker`, {
+  name: projectName,
   entrypoint: "./worker/index.ts",
   adopt: true,
   bindings: {
@@ -34,16 +34,15 @@ export const worker = await Worker("worker", {
 console.log("Worker:", worker.url);
 
 // // Create the SvelteKit app
-export const website = await SvelteKit("website", {
-  name: "remote",
-  // build: { command: "bun run build" },
-  // assets: "./.svelte-kit/output/client",
+export const app = await SvelteKit(`${projectName}-app`, {
+  name: `${projectName}-app`,
   bindings: {
     COUNTER_DO,
+    WORKER: worker,
   },
   url: true,
 });
 
-console.log("Website:", website.url);
+console.log("App:", app.url);
 
-await app.finalize(); 
+await project.finalize(); 

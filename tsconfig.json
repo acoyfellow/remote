@@ -11,5 +11,13 @@
 		"strict": true,
 		"types": ["@cloudflare/workers-types", "@types/node"]
 	},
-	"include": ["src/**/*", "types/**/*", "alchemy.run.ts", "worker/**/*"]
+	"include": [
+		".svelte-kit/ambient.d.ts",
+		".svelte-kit/non-ambient.d.ts",
+		".svelte-kit/types/**/$types.d.ts",
+		"src/**/*",
+		"types/**/*",
+		"alchemy.run.ts",
+		"worker/**/*"
+	]
 }
