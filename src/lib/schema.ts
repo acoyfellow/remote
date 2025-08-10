@@ -63,3 +63,10 @@ export const verification = sqliteTable("verification", {
     () => /* @__PURE__ */ new Date(),
   ),
 });
+
+// can we turn these into types?
+
+export type User = typeof user.$inferSelect;
+export type Session = typeof session.$inferSelect;
+export type Account = typeof account.$inferSelect;
+export type Verification = typeof verification.$inferSelect;

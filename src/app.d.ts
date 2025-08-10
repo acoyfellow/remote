@@ -1,12 +1,12 @@
 import type { D1Database } from "@cloudflare/workers-types";
-import type { User, Session } from "$lib/types";
+import type { User as BetterAuthUser, Session as BetterAuthSession } from "better-auth";
 
 declare global {
 	namespace App {
 		// interface Error {}
 		interface Locals {
-      user: User | null;
-      session: Session | null;
+      user: BetterAuthUser | null;
+      session: BetterAuthSession | null;
     }
 		// interface PageData {}
 		// interface PageState {}
