@@ -11,8 +11,14 @@ import type { CounterDO } from "./worker/index.ts";
 
 const projectName = "remote";
 
+// Debug environment variables
+console.log("Environment check:");
+console.log("CLOUDFLARE_API_TOKEN:", process.env.CLOUDFLARE_API_TOKEN ? "SET" : "NOT SET");
+console.log("CLOUDFLARE_ACCOUNT_ID:", process.env.CLOUDFLARE_ACCOUNT_ID || "NOT SET");
+console.log("ALCHEMY_PASSWORD:", process.env.ALCHEMY_PASSWORD ? "SET" : "NOT SET");
+
 const project = await alchemy(projectName, {
-  password: process.env.ALCHEMY_PASSWORD || "default-password",
+  password: process.env.ALCHEMY_PASSWORD || "default-password"
 });
 
 const COUNTER_DO = DurableObjectNamespace<CounterDO>(`${projectName}-do`, {
@@ -25,7 +31,7 @@ const COUNTER_DO = DurableObjectNamespace<CounterDO>(`${projectName}-do`, {
 const DB = await D1Database(`${projectName}-db`, {
   name: `${projectName}-db`,
   migrationsDir: "migrations",
-  adopt: true,
+  adopt: true
 });
 
 // Create the worker
