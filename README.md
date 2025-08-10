@@ -123,9 +123,23 @@ export class CounterDO extends DurableObject {
 
 ## Deployment
 
+### Manual Deployment
 ```bash
 bun run deploy
 ```
+
+### Automatic CI/CD
+Push to `main` branch triggers automatic deployment via GitHub Actions:
+- **Main branch**: Deploys to production
+- **Pull requests**: Creates preview deployments  
+- **PR closure**: Automatically cleans up preview infrastructure
+
+Configure these secrets in your GitHub repository:
+- `ALCHEMY_PASSWORD`
+- `BETTER_AUTH_URL` 
+- `CLOUDFLARE_ACCOUNT_ID`
+- `CLOUDFLARE_API_KEY`
+- `CLOUDFLARE_EMAIL`
 
 Alchemy handles:
 - D1 database creation and migrations
