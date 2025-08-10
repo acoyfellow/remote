@@ -45,7 +45,9 @@ export function createAuth(db: D1Database, env?: any) {
       expiresIn: 60 * 60 * 24 * 7, // 7 days
       updateAge: 60 * 60 * 24, // 1 day
     },
-    secret: env?.BETTER_AUTH_SECRET || 'your-secret-key-change-this-in-production',
+    secret: env?.BETTER_AUTH_SECRET || (() => {
+      throw new Error('BETTER_AUTH_SECRET environment variable is required');
+    })(),
     baseURL: env?.BETTER_AUTH_URL || 'http://localhost:5173',
     plugins: [sveltekitCookies(getRequestEvent as any)],
   });

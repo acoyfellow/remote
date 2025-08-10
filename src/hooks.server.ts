@@ -24,13 +24,6 @@ export const handle: Handle = async ({ event, resolve }) => {
     event.locals.session = null;
   }
 
-  if (event.url.pathname.startsWith('/api/auth/')) {
-    console.log('Auth route requested:', event.url.pathname, event.request.method);
-  }
-
-  console.log('[svelteKitHandler] 1)', event.url.pathname);
   const response = await svelteKitHandler({ event, resolve, auth, building });
-  console.log('[svelteKitHandler] 2)', response);
-  // how can we log if /api/auth* is generated in production?
   return response;
 };

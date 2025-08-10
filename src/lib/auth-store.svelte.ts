@@ -33,7 +33,7 @@ class AuthStore {
     this.state.isLoading = true;
     try {
       const result = await signIn.email({ email, password });
-      console.log('signIn', {result});
+
       if(result.error){
         return alert(result.error.message);
       };
@@ -54,7 +54,7 @@ class AuthStore {
         password,
         name: name || email.split('@')[0]
       });
-      console.log('signUp', {result});
+
       if(result.error){
         return alert(result.error.message);
       };
@@ -73,7 +73,7 @@ class AuthStore {
       this.state.session = null;
       this.state.isLoading = false;
     } catch (error) {
-      console.error('signOut', error);
+
       this.state.isLoading = false;
       throw error;
     }

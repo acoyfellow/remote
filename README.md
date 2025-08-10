@@ -54,7 +54,8 @@ migrations/                # Database migrations for auth
 
 ```bash
 bun install
-echo 'ALCHEMY_PASSWORD=your-password' > .env  # optional
+echo 'ALCHEMY_PASSWORD=your-password' > .env
+echo 'BETTER_AUTH_SECRET=your-secret-key-here' >> .env
 bun run dev
 ```
 
@@ -136,6 +137,7 @@ Push to `main` branch triggers automatic deployment via GitHub Actions:
 
 Configure these secrets in your GitHub repository:
 - `ALCHEMY_PASSWORD`
+- `BETTER_AUTH_SECRET` (required - generate a secure random string)
 - `BETTER_AUTH_URL` 
 - `CLOUDFLARE_ACCOUNT_ID`
 - `CLOUDFLARE_API_KEY`

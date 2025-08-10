@@ -8,7 +8,6 @@ export const GET: RequestHandler = async (event) => {
   }
 
   const auth = createAuth(db, event.platform?.env);
-  console.log('GET >>>>>>', auth);
   return auth.handler(event.request);
 };
 
@@ -19,6 +18,5 @@ export const POST: RequestHandler = async (event) => {
   }
 
   const auth = createAuth(db, event.platform?.env);
-  console.log('POST >>>>>>', auth);
   return auth.handler(event.request);
 };
