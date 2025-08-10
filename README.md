@@ -1,6 +1,6 @@
 # Remote - SvelteKit + Better Auth + Durable Objects
 
-Barebones starter for building authenticated apps with persistent state on the edge. No bullshit. Just working code.
+Barebones starter for building authenticated apps with persistent state on the edge. 
 
 ## What This Shows
 
