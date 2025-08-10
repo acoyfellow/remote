@@ -11,12 +11,6 @@ import type { CounterDO } from "./worker/index.ts";
 
 const projectName = "remote";
 
-// Debug environment variables
-console.log("Environment check:");
-console.log("CLOUDFLARE_API_KEY:", process.env.CLOUDFLARE_API_KEY ? "SET" : "NOT SET");
-console.log("CLOUDFLARE_ACCOUNT_ID:", process.env.CLOUDFLARE_ACCOUNT_ID || "NOT SET");
-console.log("ALCHEMY_PASSWORD:", process.env.ALCHEMY_PASSWORD ? "SET" : "NOT SET");
-
 const project = await alchemy(projectName, {
   password: process.env.ALCHEMY_PASSWORD || "default-password"
 });
@@ -56,6 +50,9 @@ export const APP = await SvelteKit(`${projectName}-app`, {
   },
   url: true,
   adopt: true,
+  env: {
+    BETTER_AUTH_URL: process.env.BETTER_AUTH_URL || "http://localhost:5173",
+  }
 });
 
 console.log("App:", APP.url);

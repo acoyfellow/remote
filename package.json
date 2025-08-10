@@ -1,12 +1,12 @@
 {
-	"name": "sveltekit-durable-objects-demo",
-	"description": "SvelteKit remote functions calling Cloudflare Durable Objects - zero config, incredible DX",
+	"name": "remote",
+	"description": "Barebones starter for authenticated apps with persistent edge state - SvelteKit + Better Auth + Durable Objects",
 	"version": "1.0.0",
 	"type": "module",
-	"keywords": ["sveltekit", "cloudflare", "durable-objects", "alchemy", "remote-functions", "typescript"],
+	"keywords": ["sveltekit", "better-auth", "cloudflare", "durable-objects", "alchemy", "remote-functions", "typescript"],
 	"repository": {
 		"type": "git",
-		"url": "https://github.com/your-username/sveltekit-durable-objects-demo"
+		"url": "https://github.com/acoyfellow/remote"
 	},
 	"scripts": {
 		"dev": "alchemy dev",

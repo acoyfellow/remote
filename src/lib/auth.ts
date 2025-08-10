@@ -22,7 +22,11 @@ export function createAuth(db: D1Database, env?: any) {
   });
 
   return betterAuth({
-    trustedOrigins: ["http://localhost:3000", "https://example.com"],
+    trustedOrigins: [
+      "http://localhost:5173",
+      "https://*.coey.dev",
+      "https://*-remote-app.coy.workers.dev",
+    ],
     database: drizzleAdapter(drizzleDb, {
       provider: 'sqlite',
       schema: {
