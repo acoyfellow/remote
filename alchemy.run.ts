@@ -31,7 +31,9 @@ const COUNTER_DO = DurableObjectNamespace<CounterDO>(`${projectName}-do`, {
 const DB = await D1Database(`${projectName}-db`, {
   name: `${projectName}-db`,
   migrationsDir: "migrations",
-  adopt: true
+  adopt: true,
+  apiToken: alchemy.secret(process.env.CLOUDFLARE_API_TOKEN!),
+  accountId: process.env.CLOUDFLARE_ACCOUNT_ID
 });
 
 // Create the worker
