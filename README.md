@@ -1,79 +1,147 @@
-### Remote Functions + Durable Objects on Cloudflare (SvelteKit + Alchemy)
+# SvelteKit Remote Functions with Cloudflare Durable Objects
 
-An example project showcasing SvelteKit remote functions calling into a Cloudflare Worker with Durable Objects, wired up with Alchemy for a great DX.
+A demonstration of SvelteKit's remote functions feature working with Cloudflare Durable Objects via Alchemy for deployment.
 
-- SvelteKit 2 + Svelte 5
-- Cloudflare Worker with a `DurableObject` counter
-- Remote functions that call the Worker (dev via localhost, prod via service binding)
-- One-command dev and deploy via Alchemy
+## What This Shows
 
-### Quickstart
+This project demonstrates:
 
-1) Install deps
+- **SvelteKit Remote Functions**: Server-side functions that can be called directly from components, working in both SSR and CSR contexts
+- **Cloudflare Durable Objects**: Persistent, globally consistent storage using a simple counter example
+- **Alchemy Deployment**: Zero-configuration deployment to Cloudflare with automatic service bindings
+- **Development Experience**: Local development with HTTP calls that automatically switch to service bindings in production
 
-```sh
+## Architecture
+
+```
+SvelteKit Component → Remote Function → Cloudflare Worker → Durable Object
+```
+
+The key innovation is in `src/routes/data.remote.ts` where the same remote function works in both development and production:
+
+- **Development**: HTTP calls to `localhost:1337`
+- **Production**: Service bindings (no network latency)
+- **No code changes** between environments
+
+## Project Structure
+
+```
+src/routes/
+├── data.remote.ts          # Remote functions that call the worker
+├── +page.server.ts         # SSR load function
+└── +page.svelte           # UI component
+
+worker/
+└── index.ts               # Durable Object implementation + worker
+
+alchemy.run.ts             # Deployment configuration
+```
+
+## Setup
+
+```bash
 npm install
-```
-
-2) Create `.env` (see `.env.example`)
-
-```sh
-cp .env.example .env
-```
-
-3) Start dev
-
-```sh
+echo 'ALCHEMY_PASSWORD=your-password' > .env  # optional
 npm run dev
 ```
 
-This will:
-- run SvelteKit dev
-- run the Worker locally and bind it so remote functions can call it
+Open http://localhost:5173 to see the counter interface.
 
-Open the app, then visit:
-- `/` for the remote functions lab
-- `/durable-object` for the DO counter demo
+## Key Implementation Details
 
-### Deploy
+### Remote Functions (`src/routes/data.remote.ts`)
 
-```sh
-npm run deploy
+```typescript
+export const getCounter = query('unchecked', async (counterId: string) => {
+  const platform = getRequestEvent().platform;
+  const response = await workerRequest(platform, `/counter/${counterId}`);
+  return response.json();
+});
 ```
 
-Alchemy will provision the Worker and the site, bind the Durable Object, and set service bindings so production remote functions can call the Worker.
+### Environment Switching (worker call helper)
 
-### How it works
+```typescript
+function buildWorkerUrl(endpoint: string) {
+  return dev ? `http://localhost:1337${endpoint}` : `http://worker${endpoint}`;
+}
 
-- `worker/index.ts` defines a `CounterDO` Durable Object and routes `/counter/:id` requests to it
-- `alchemy.run.ts` creates the Worker and the Website, binds `COUNTER_DO` and exposes the Worker to the site as `WORKER`
-- `src/routes/durable-object/data.remote.ts` contains two server-side remote functions that call the Worker
+async function callWorker(platform: App.Platform | undefined, endpoint: string, options?: RequestInit) {
+  const url = buildWorkerUrl(endpoint);
+  if (dev) return fetch(url, options);
+  return platform!.env!.WORKER.fetch(new Request(url, options));
+}
 
-Key bit that enables prod calls from remote functions:
-
-```ts
-// alchemy.run.ts (website bindings)
-bindings: {
-  COUNTER_DO,
-  WORKER: worker
+async function callWorkerJSON<T>(platform: App.Platform | undefined, endpoint: string, options?: RequestInit): Promise<T> {
+  const res = await callWorker(platform, endpoint, options);
+  if (!res.ok) throw new Error(`Worker ${res.status}: ${await res.text()}`);
+  return res.json();
 }
 ```
 
-Dev calls go to `http://localhost:1337`, prod calls use the `WORKER` service binding.
+### Durable Object (`worker/index.ts`)
 
-### Scripts
+Basic counter with persistent storage:
 
-- `dev`: run the website and worker locally via Alchemy
-- `build`: vite build for the website
-- `preview`: vite preview
-- `deploy`: deploy via Alchemy
-- `destroy`: tear down via Alchemy
-- `check`: type-check via svelte-check
+```typescript
+export class CounterDO extends DurableObject {
+  async fetch(request: Request): Promise<Response> {
+    const count = (await this.ctx.storage.get<number>('count')) || 0;
+    if (request.method === 'POST') {
+      const newCount = count + 1;
+      await this.ctx.storage.put('count', newCount);
+      return Response.json({ count: newCount, id: this.ctx.id.toString(), timestamp: new Date().toISOString() });
+    }
+    return Response.json({ count, id: this.ctx.id.toString(), timestamp: new Date().toISOString() });
+  }
+}
+```
 
-### Environment
+### Remote Functions (`src/routes/data.remote.ts`)
 
-See `.env.example`. The only required variable is `ALCHEMY_PASSWORD` for local dev auth; `ALCHEMY_STAGE` defaults to `dev`.
+```typescript
+export const getCounter = query('unchecked', async (counterId = 'default') => {
+  const platform = getRequestEvent().platform;
+  return callWorkerJSON(platform, `/counter/${counterId}`);
+});
 
-### License
+// Mutations use command; same endpoint, POST increments
+export const incrementCounter = command('unchecked', async (counterId = 'default') => {
+  const platform = getRequestEvent().platform;
+  return callWorkerJSON(platform, `/counter/${counterId}`, { method: 'POST' });
+});
+```
 
-MIT — see `LICENSE`.
+## Deployment
+
+```bash
+npm run deploy
+```
+
+Alchemy handles:
+- Durable Object namespace creation
+- Worker deployment with bindings
+- SvelteKit app deployment
+- Service binding configuration
+
+## Why This Pattern
+
+Traditional approach requires manual API routes and fetch calls. Remote functions provide:
+- Direct function calls from components
+- Automatic serialization
+- Type safety end-to-end
+- Works in both SSR and CSR contexts
+
+This is a good starting point for projects needing persistent edge state with SvelteKit.
+
+## Scripts
+
+- `npm run dev` - Development server
+- `npm run deploy` - Deploy to Cloudflare
+- `npm run destroy` - Remove infrastructure
+- `npm run build` - Build for production
+
+## Requirements
+
+- Node.js
+- Cloudflare account (for deployment)

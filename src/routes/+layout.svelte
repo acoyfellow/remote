@@ -1,11 +1,11 @@
 <script lang="ts">
   import "../app.css";
-  let { children } = $props();
+  import { authStore } from "$lib/auth-store.svelte";
+  import { onMount } from "svelte";
+
+  let { data, children, ...rest } = $props();
+
+  authStore.initialize(data.user, data.session);
 </script>
 
-<svelte:boundary>
-  {@render children?.()}
-  {#snippet pending()}
-    <p>loading...</p>
-  {/snippet}
-</svelte:boundary>
+{@render children?.()}

@@ -1,3 +1,81 @@
 @import 'tailwindcss';
 @plugin '@tailwindcss/forms';
 @plugin '@tailwindcss/typography';
+
+/* Import brutalist font */
+@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&display=swap');
+
+/* Custom brutalist styles */
+* {
+  box-sizing: border-box;
+}
+
+body {
+  font-family: 'Space Grotesk', monospace;
+  line-height: 1.2;
+  font-weight: 400;
+}
+
+.brutalist-border {
+  border: 4px solid #000;
+}
+
+.brutalist-button {
+  border: 4px solid #000;
+  background: #fff;
+  color: #000;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  transition: none;
+  cursor: pointer;
+}
+
+.brutalist-button:hover {
+  background: #000;
+  color: #fff;
+}
+
+.brutalist-button:disabled {
+  background: #ccc;
+  color: #666;
+  cursor: not-allowed;
+}
+
+.brutalist-button:disabled:hover {
+  background: #ccc;
+  color: #666;
+}
+
+.brutalist-input {
+  border: 4px solid #000;
+  background: #fff;
+  color: #000;
+  font-weight: 500;
+  font-family: 'Space Grotesk', monospace;
+}
+
+.brutalist-input:focus {
+  outline: none;
+  border-color: #000;
+  box-shadow: 4px 4px 0px #000;
+}
+
+.brutalist-card {
+  border: 4px solid #000;
+  background: #fff;
+}
+
+.brutalist-select {
+  border: 4px solid #000;
+  background: #fff;
+  color: #000;
+  font-weight: 600;
+  font-family: 'Space Grotesk', monospace;
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%23000' stroke-linecap='round' stroke-linejoin='round' stroke-width='4' d='m6 8 4 4 4-4'/%3e%3c/svg%3e");
+  background-position: right 12px center;
+  background-repeat: no-repeat;
+  background-size: 16px;
+  padding-right: 48px;
+}

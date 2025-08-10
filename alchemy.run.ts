@@ -3,7 +3,8 @@ import alchemy from "alchemy";
 import { 
   SvelteKit, 
   Worker, 
-  DurableObjectNamespace
+  DurableObjectNamespace,
+  D1Database
 } from "alchemy/cloudflare";
 
 import type { CounterDO } from "./worker/index.ts";
@@ -16,33 +17,41 @@ const project = await alchemy(projectName, {
 
 const COUNTER_DO = DurableObjectNamespace<CounterDO>(`${projectName}-do`, {
   className: "CounterDO",
-  scriptName: projectName,
+  scriptName: `${projectName}-worker`,
   sqlite: true
 });
 
+// Create D1 database for auth
+const DB = await D1Database(`${projectName}-db`, {
+  name: `${projectName}-db`,
+  migrationsDir: "migrations",
+  adopt: true,
+});
+
 // Create the worker
-export const worker = await Worker(`${projectName}-worker`, {
-  name: projectName,
+export const WORKER = await Worker(`${projectName}-worker`, {
+  name: `${projectName}-worker`,
   entrypoint: "./worker/index.ts",
   adopt: true,
   bindings: {
     COUNTER_DO,
   },
-  url: true
+  url: false
 });
 
-console.log("Worker:", worker.url);
+console.log("Worker:", WORKER.url);
 
-// // Create the SvelteKit app
-export const app = await SvelteKit(`${projectName}-app`, {
+export const APP = await SvelteKit(`${projectName}-app`, {
   name: `${projectName}-app`,
   bindings: {
     COUNTER_DO,
-    WORKER: worker,
+    WORKER,
+    DB,
   },
   url: true,
+  adopt: true,
 });
 
-console.log("App:", app.url);
+console.log("App:", APP.url);
 
 await project.finalize(); 

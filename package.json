@@ -1,8 +1,13 @@
 {
-	"name": "remote",
-	"private": true,
-	"version": "0.0.1",
+	"name": "sveltekit-durable-objects-demo",
+	"description": "SvelteKit remote functions calling Cloudflare Durable Objects - zero config, incredible DX",
+	"version": "1.0.0",
 	"type": "module",
+	"keywords": ["sveltekit", "cloudflare", "durable-objects", "alchemy", "remote-functions", "typescript"],
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/your-username/sveltekit-durable-objects-demo"
+	},
 	"scripts": {
 		"dev": "alchemy dev",
 		"deploy": "alchemy deploy",
@@ -11,7 +16,13 @@
 		"preview": "vite preview",
 		"prepare": "svelte-kit sync || echo ''",
 		"check": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json",
-		"check:watch": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json --watch"
+		"check:watch": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json --watch",
+    "db:better-auth": "bunx @better-auth/cli generate",
+    "db:generate": "drizzle-kit generate",
+    "db:migrate": "drizzle-kit migrate",
+    "db:studio": "drizzle-kit studio",
+    "db:local": "wrangler d1 migrations apply remote-db --local",
+    "db:remote": "wrangler d1 migrations apply remote-db --remote"
 	},
 	"devDependencies": {
 		"@sveltejs/adapter-cloudflare": "^7.1.3",
@@ -21,6 +32,9 @@
 		"@tailwindcss/typography": "^0.5.16",
 		"@tailwindcss/vite": "^4.1.11",
 		"alchemy": "^0.59.2",
+		"better-auth": "^1.3.4",
+		"drizzle-kit": "^0.31.4",
+		"drizzle-orm": "^0.44.4",
 		"svelte": "^5.38.0",
 		"svelte-check": "^4.3.1",
 		"tailwindcss": "^4.1.11",

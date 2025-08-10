@@ -1,79 +1,55 @@
-
 import { query, command, getRequestEvent } from '$app/server';
+import { dev } from '$app/environment';
+import { createAuth } from '$lib/auth';
 
-/* 
-fun questions..
-- can we use the same function for both client and server?
-- can i use durable object bindings from here?
-*/
+type CounterData = { count: number; id: string; timestamp: string };
 
-// Test 1: Basic hello world
-export const getHello = query(async () => {
-  console.log('[SERVER] getHello called');
-  return 'Hello, world!';
+function buildWorkerUrl(endpoint: string): string {
+  return dev ? `http://localhost:1337${endpoint}` : `http://worker${endpoint}`;
+}
+
+async function callWorker(
+  platform: App.Platform | undefined,
+  endpoint: string,
+  options: RequestInit = {}
+): Promise<Response> {
+  const url = buildWorkerUrl(endpoint);
+  if (dev) return fetch(url, options);
+  const request = new Request(url, options);
+  return platform!.env!.WORKER.fetch(request);
+}
+
+async function callWorkerJSON<T>(
+  platform: App.Platform | undefined,
+  endpoint: string,
+  options?: RequestInit
+): Promise<T> {
+  const res = await callWorker(platform, endpoint, options);
+  if (!res.ok) throw new Error(`Worker ${res.status}: ${await res.text()}`);
+  return res.json() as Promise<T>;
+}
+
+// Remote functions to interact with the Counter Durable Object
+export const getCounter = query('unchecked', async (counterId: string = 'default'): Promise<CounterData> => {
+  const platform = getRequestEvent().platform;
+  return callWorkerJSON(platform, `/counter/${counterId}`);
 });
 
-// Test 2: Can we access Cloudflare bindings? (Durable Objects, KV, etc.)
-export const testBindings = query(async () => {
-  const event = getRequestEvent();
-  const platform = event.platform;
+export const incrementCounter = command('unchecked', async (counterId: string = 'default'): Promise<CounterData> => {
+  const platform = getRequestEvent().platform;
   
-  // Check if we have access to Cloudflare bindings
-  const bindings = {
-    hasEnv: !!platform?.env,
-    envKeys: platform?.env ? Object.keys(platform.env) : [],
-    // Try to access common Cloudflare bindings
-    hasKV: !!(platform?.env as any)?.KV,
-    hasDO: !!(platform?.env as any)?.DURABLE_OBJECT,
-    hasR2: !!(platform?.env as any)?.R2,
-  };
+  // Get D1 database from platform
+  const db = platform?.env?.DB;
+  if (!db) {
+    throw new Error('D1 database not available in platform environment');
+  }
   
-  return bindings;
-});
-
-// Test 3: Can we use the same function logic on both client and server?
-const sharedLogic = (name: string) => {
-  return `Processed: ${name.toUpperCase()} at ${new Date().toISOString()}`;
-};
-
-export const testSharedLogic = query('unchecked', async (name: string) => {
-  console.log(`[SERVER] testSharedLogic called with name: ${name}`);
-  // This runs on server
-  const serverResult = sharedLogic(name || 'server');
+  const auth = createAuth(db, platform?.env);
+  const session = await auth.api.getSession({ 
+    headers: getRequestEvent().request.headers 
+  });
   
-  return {
-    serverResult,
-    timestamp: Date.now(),
-    environment: 'server'
-  };
-});
-
-// Test 4: Real-time data simulation
-export const getRealtimeData = query(async () => {
-  console.log('[SERVER] getRealtimeData called');
-  // Simulate data that changes each call
-  return {
-    timestamp: Date.now(),
-    randomValue: Math.random(),
-    serverTime: new Date().toISOString(),
-    uptime: process.uptime?.() || 'unknown'
-  };
-});
-
-// Test 5: Command to test if we can modify server state
-let serverCounter = 0;
-export const incrementCounter = command(async () => {
-  console.log(`[SERVER] incrementCounter called, current value: ${serverCounter}`);
-  serverCounter++;
-  console.log(`[SERVER] Counter incremented to: ${serverCounter}`);
+  if (!session) throw new Error('Please sign in to increment the counter');
   
-  return { 
-    counter: serverCounter,
-    message: `Counter incremented to ${serverCounter}` 
-  };
-});
-
-export const getCounter = query(async () => {
-  console.log(`[SERVER] getCounter called, returning: ${serverCounter}`);
-  return { counter: serverCounter };
+  return callWorkerJSON(platform, `/counter/${counterId}`, { method: 'POST' });
 });

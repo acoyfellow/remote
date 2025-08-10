@@ -22,7 +22,10 @@ const config = {
 		experimental: {
 			async: true
 		}
-	}
+	},
+  alias: {
+    $shared: 'shared'
+  }
 };
 
 export default config;

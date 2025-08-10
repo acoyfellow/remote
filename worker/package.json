@@ -3,7 +3,7 @@
   "version": "0.0.1",
   "main": "index.ts",
   "devDependencies": {
-    "@cloudflare/workers-types": "^4.20241011.0"
+    "@cloudflare/workers-types": "^4.20250809.0"
   },
   "type": "module",
   "scripts": {
