@@ -1,4 +1,4 @@
-import { createAuth } from "$lib/auth";
+import { initAuth, getAuth } from "$lib/auth";
 import { svelteKitHandler } from "better-auth/svelte-kit";
 import { building } from "$app/environment";
 import { error } from "@sveltejs/kit";
@@ -10,7 +10,8 @@ export const handle: Handle = async ({ event, resolve }) => {
   
   if (!db) return error(500, 'D1 database not available');
 
-  const auth = createAuth(db, event.platform?.env);
+  // Initialize auth once, then reuse
+  const auth = initAuth(db, event.platform?.env);
   
   try {
     const session = await auth.api.getSession({

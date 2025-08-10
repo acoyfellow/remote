@@ -7,9 +7,23 @@ import { getRequestEvent } from '$app/server';
 
 import type { D1Database } from '@cloudflare/workers-types';
 
-export function createAuth(db: D1Database, env?: any) {
+let authInstance: ReturnType<typeof betterAuth> | null = null;
+
+export function getAuth(): ReturnType<typeof betterAuth> {
+  if (!authInstance) {
+    throw new Error('Auth not initialized. Call initAuth() first.');
+  }
+  return authInstance;
+}
+
+export function initAuth(db: D1Database, env?: any) {
   if (!db) {
     throw new Error('D1 database is required for Better Auth');
+  }
+  
+  // Only create once
+  if (authInstance) {
+    return authInstance;
   }
   
   const drizzleDb = drizzle(db, {
@@ -21,7 +35,7 @@ export function createAuth(db: D1Database, env?: any) {
     },
   });
 
-  return betterAuth({
+  authInstance = betterAuth({
     trustedOrigins: [
       "http://localhost:5173",
       "https://*.coey.dev",
@@ -51,6 +65,8 @@ export function createAuth(db: D1Database, env?: any) {
     baseURL: env?.BETTER_AUTH_URL || 'http://localhost:5173',
     plugins: [sveltekitCookies(getRequestEvent as any)],
   });
+  
+  return authInstance;
 }
 
 // Export for CLI schema generation

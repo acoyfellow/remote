@@ -1,6 +1,5 @@
 import { query, command, getRequestEvent } from '$app/server';
 import { dev } from '$app/environment';
-import { createAuth } from '$lib/auth';
 
 type CounterData = { count: number; id: string; timestamp: string };
 
@@ -37,19 +36,12 @@ export const getCounter = query('unchecked', async (counterId: string = 'default
 
 export const incrementCounter = command('unchecked', async (counterId: string = 'default'): Promise<CounterData> => {
   const platform = getRequestEvent().platform;
+  const event = getRequestEvent();
   
-  // Get D1 database from platform
-  const db = platform?.env?.DB;
-  if (!db) {
-    throw new Error('D1 database not available in platform environment');
+  // Use session already validated in hooks.server.ts (no duplicate DB call)
+  if (!event.locals.session) {
+    throw new Error('Please sign in to increment the counter');
   }
-  
-  const auth = createAuth(db, platform?.env);
-  const session = await auth.api.getSession({ 
-    headers: getRequestEvent().request.headers 
-  });
-  
-  if (!session) throw new Error('Please sign in to increment the counter');
   
   return callWorkerJSON(platform, `/counter/${counterId}`, { method: 'POST' });
 });
