@@ -13,7 +13,7 @@ const projectName = "remote";
 
 // Debug environment variables
 console.log("Environment check:");
-console.log("CLOUDFLARE_API_TOKEN:", process.env.CLOUDFLARE_API_TOKEN ? "SET" : "NOT SET");
+console.log("CLOUDFLARE_API_KEY:", process.env.CLOUDFLARE_API_KEY ? "SET" : "NOT SET");
 console.log("CLOUDFLARE_ACCOUNT_ID:", process.env.CLOUDFLARE_ACCOUNT_ID || "NOT SET");
 console.log("ALCHEMY_PASSWORD:", process.env.ALCHEMY_PASSWORD ? "SET" : "NOT SET");
 
@@ -32,8 +32,6 @@ const DB = await D1Database(`${projectName}-db`, {
   name: `${projectName}-db`,
   migrationsDir: "migrations",
   adopt: true,
-  apiToken: alchemy.secret(process.env.CLOUDFLARE_API_TOKEN!),
-  accountId: process.env.CLOUDFLARE_ACCOUNT_ID
 });
 
 // Create the worker

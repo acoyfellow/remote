@@ -16,11 +16,11 @@ jobs:
       - run: bun install
       - run: |
           echo "Environment variables check:"
-          echo "CLOUDFLARE_API_TOKEN: ${CLOUDFLARE_API_TOKEN:0:10}..."
+          echo "CLOUDFLARE_API_KEY: ${CLOUDFLARE_API_KEY:0:10}..."
           echo "CLOUDFLARE_ACCOUNT_ID: $CLOUDFLARE_ACCOUNT_ID"
           echo "ALCHEMY_PASSWORD: ${ALCHEMY_PASSWORD:0:5}..."
           echo "Running deploy..."
-          export CLOUDFLARE_API_TOKEN="$CLOUDFLARE_API_TOKEN"
+          export CLOUDFLARE_API_KEY="$CLOUDFLARE_API_KEY"
           export CLOUDFLARE_ACCOUNT_ID="$CLOUDFLARE_ACCOUNT_ID" 
           export ALCHEMY_PASSWORD="$ALCHEMY_PASSWORD"
           bun run deploy
@@ -28,7 +28,7 @@ jobs:
           ALCHEMY_PASSWORD: ${{ secrets.ALCHEMY_PASSWORD }}
           BETTER_AUTH_URL: ${{ secrets.BETTER_AUTH_URL }}
           CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_API_KEY: ${{ secrets.CLOUDFLARE_API_KEY }}
 
   cleanup:
     runs-on: ubuntu-latest
@@ -42,4 +42,4 @@ jobs:
           ALCHEMY_PASSWORD: ${{ secrets.ALCHEMY_PASSWORD }}
           BETTER_AUTH_URL: ${{ secrets.BETTER_AUTH_URL }}
           CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_API_KEY: ${{ secrets.CLOUDFLARE_API_KEY }}
