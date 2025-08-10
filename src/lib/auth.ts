@@ -46,9 +46,9 @@ export function createAuth(db: D1Database, env?: any) {
 }
 
 // Export for CLI schema generation
-export const auth = betterAuth({
-  database: drizzleAdapter({} as any, { provider: 'sqlite' }),
-  emailAndPassword: { enabled: true },
-  secret: 'temp',
-  baseURL: 'http://localhost:5173',
-}); 
+// export const auth = betterAuth({
+//   database: drizzleAdapter({} as any, { provider: 'sqlite' }),
+//   emailAndPassword: { enabled: true },
+//   secret: 'temp',
+//   baseURL: 'http://localhost:5173',
+// }); 
