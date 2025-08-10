@@ -1,6 +1,6 @@
 import { browser } from '$app/environment';
 import { signIn, signOut as signOutClient, signUp } from '$lib/auth-client';
-import type { User, Session } from '$lib/types';
+import type { User, Session } from 'better-auth';
 
 interface AuthState {
   user: User | null;  // User object from Better Auth
@@ -89,3 +89,8 @@ class AuthStore {
 
 // Export singleton instance
 export const authStore = new AuthStore();
+
+// Individual getters for convenience
+export const getUser = () => authStore.user;
+export const getSession = () => authStore.session;
+export const getIsAuthenticated = () => !!authStore.user;

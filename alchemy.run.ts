@@ -39,8 +39,6 @@ export const WORKER = await Worker(`${projectName}-worker`, {
   url: false
 });
 
-console.log("Worker:", WORKER.url);
-
 export const APP = await SvelteKit(`${projectName}-app`, {
   name: `${projectName}-app`,
   bindings: {
@@ -51,10 +49,9 @@ export const APP = await SvelteKit(`${projectName}-app`, {
   url: true,
   adopt: true,
   env: {
+    BETTER_AUTH_SECRET: process.env.BETTER_AUTH_SECRET || "default-secret",
     BETTER_AUTH_URL: process.env.BETTER_AUTH_URL || "http://localhost:5173",
   }
 });
-
-console.log("App:", APP.url);
 
 await project.finalize(); 

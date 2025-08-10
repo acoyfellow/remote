@@ -8,6 +8,7 @@ import { getRequestEvent } from '$app/server';
 import type { D1Database } from '@cloudflare/workers-types';
 
 let authInstance: ReturnType<typeof betterAuth> | null = null;
+let drizzleInstance: ReturnType<typeof drizzle> | null = null;
 
 export function getAuth(): ReturnType<typeof betterAuth> {
   if (!authInstance) {
@@ -16,55 +17,67 @@ export function getAuth(): ReturnType<typeof betterAuth> {
   return authInstance;
 }
 
+export function getDrizzle(): ReturnType<typeof drizzle> {
+  if (!drizzleInstance) {
+    throw new Error('Database not initialized. Call initAuth() first.');
+  }
+  return drizzleInstance;
+}
+
 export function initAuth(db: D1Database, env?: any) {
   if (!db) {
     throw new Error('D1 database is required for Better Auth');
   }
   
   // Only create once
-  if (authInstance) {
+  if (authInstance && drizzleInstance) {
     return authInstance;
   }
   
-  const drizzleDb = drizzle(db, {
-    schema: {
-      user,
-      session,
-      account,
-      verification,
-    },
-  });
-
-  authInstance = betterAuth({
-    trustedOrigins: [
-      "http://localhost:5173",
-      "https://*.coey.dev",
-      "https://*-remote-app.coy.workers.dev",
-    ],
-    database: drizzleAdapter(drizzleDb, {
-      provider: 'sqlite',
+  // Create singleton Drizzle instance (connection pooling)
+  if (!drizzleInstance) {
+    drizzleInstance = drizzle(db, {
       schema: {
         user,
         session,
         account,
         verification,
       },
-    }),
-    emailAndPassword: {
-      enabled: true,
-      autoSignIn: true,
-      requireEmailVerification: false,
-    },
-    session: {
-      expiresIn: 60 * 60 * 24 * 7, // 7 days
-      updateAge: 60 * 60 * 24, // 1 day
-    },
-    secret: env?.BETTER_AUTH_SECRET || (() => {
-      throw new Error('BETTER_AUTH_SECRET environment variable is required');
-    })(),
-    baseURL: env?.BETTER_AUTH_URL || 'http://localhost:5173',
-    plugins: [sveltekitCookies(getRequestEvent as any)],
-  });
+    });
+  }
+
+  if (!authInstance) {
+    authInstance = betterAuth({
+      trustedOrigins: [
+        "http://localhost:5173",
+        "https://*.coey.dev",
+        "https://*-remote-app.coy.workers.dev",
+      ],
+      database: drizzleAdapter(drizzleInstance, {
+        provider: 'sqlite',
+        schema: {
+          user,
+          session,
+          account,
+          verification,
+        },
+      }),
+      emailAndPassword: {
+        enabled: true,
+        autoSignIn: true,
+        requireEmailVerification: false,
+      },
+      session: {
+        expiresIn: 60 * 60 * 24 * 7, // 7 days
+        updateAge: 60 * 60 * 24, // 1 day
+      },
+      secret: env?.BETTER_AUTH_SECRET || (() => {
+        throw new Error('BETTER_AUTH_SECRET environment variable is required');
+      })(),
+      baseURL: env?.BETTER_AUTH_URL || 'http://localhost:5173',
+      plugins: [sveltekitCookies(getRequestEvent as any)],
+    });
+  }
   
   return authInstance;
 }

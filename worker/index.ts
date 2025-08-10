@@ -6,48 +6,92 @@ type Env = {
 
 export class CounterDO extends DurableObject {
   async fetch(request: Request): Promise<Response> {
-    // Get current count from storage
-    const count = await this.ctx.storage.get<number>('count') || 0;
+    const durableObjectStart = performance.now();
     
-    if (request.method === 'GET') {
-      return Response.json({
-        count: count,
-        id: this.ctx.id.toString(),
-        timestamp: new Date().toISOString()
-      });
-    }
-
-    if (request.method === 'POST') {
-      const newCount = count + 1;
-      await this.ctx.storage.put('count', newCount);
+    try {
+      // Get current count from storage
+      const storageStart = performance.now();
+      const count = await this.ctx.storage.get<number>('count') || 0;
+      const storageEnd = performance.now();
       
-      return Response.json({
-        count: newCount,
-        id: this.ctx.id.toString(),
-        timestamp: new Date().toISOString()
-      });
-    }
+      if (request.method === 'GET') {
+        const durableObjectEnd = performance.now();
+        return Response.json({
+          count: count,
+          id: this.ctx.id.toString(),
+          timestamp: new Date().toISOString(),
+          timing: {
+            durableObject: durableObjectEnd - durableObjectStart,
+            storage: storageEnd - storageStart
+          }
+        });
+      }
 
-    return new Response('Not found', { status: 404 });
+      if (request.method === 'POST') {
+        const writeStart = performance.now();
+        const newCount = count + 1;
+        await this.ctx.storage.put('count', newCount);
+        const writeEnd = performance.now();
+        const durableObjectEnd = performance.now();
+        
+        return Response.json({
+          count: newCount,
+          id: this.ctx.id.toString(),
+          timestamp: new Date().toISOString(),
+          timing: {
+            durableObject: durableObjectEnd - durableObjectStart,
+            storage: storageEnd - storageStart,
+            write: writeEnd - writeStart
+          }
+        });
+      }
+
+      return new Response('Not found', { status: 404 });
+      
+    } catch (error) {
+      console.error('Durable Object error:', error);
+      return new Response(
+        JSON.stringify({ error: 'Storage temporarily unavailable' }), 
+        { 
+          status: 503, 
+          headers: { 'Content-Type': 'application/json' } 
+        }
+      );
+    }
   }
 }
 
 export default {
   async fetch(request: Request, env: Env) {
-    
-    const url = new URL(request.url);
-    const pathname = url.pathname;
+    try {
+      const url = new URL(request.url);
+      const pathname = url.pathname;
 
-    // Handle counter requests: /counter/{counterId}
-    if (pathname.startsWith('/counter/')) {
-      const pathParts = pathname.split('/');
-      const counterId = pathParts[2] || 'default';
-      const id = env.COUNTER_DO.idFromName(counterId);
-      const counter = env.COUNTER_DO.get(id);
-      const resp = await counter.fetch(request);
-      return resp;
+      // Handle counter requests: /counter/{counterId}
+      if (pathname.startsWith('/counter/')) {
+        const pathParts = pathname.split('/');
+        const counterId = pathParts[2] || 'default';
+        
+        if (!counterId || counterId.length > 50) {
+          return new Response('Invalid counter ID', { status: 400 });
+        }
+        
+        const id = env.COUNTER_DO.idFromName(counterId);
+        const counter = env.COUNTER_DO.get(id);
+        return await counter.fetch(request);
+      }
+
+      return new Response("Not found", { status: 404 });
+      
+    } catch (error) {
+      console.error('Worker error:', error);
+      return new Response(
+        JSON.stringify({ error: 'Service temporarily unavailable' }), 
+        { 
+          status: 503, 
+          headers: { 'Content-Type': 'application/json' } 
+        }
+      );
     }
-
-    return new Response("Not found", { status: 404 });
   }
 };

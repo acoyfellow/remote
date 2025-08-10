@@ -8,33 +8,189 @@
   let counterId = $state(data.counterId);
   let counterData = $state(data.counterData);
 
+  // Initialize metrics with SSR timing on page load
+  let metrics = $state({
+    lastTiming: data.ssrTiming
+      ? ({
+          total: data.ssrTiming.total,
+          backend: data.ssrTiming.backend,
+          worker: data.ssrTiming.worker,
+          durableObject: data.ssrTiming.durableObject,
+          timestamp: data.ssrTimestamp,
+        } as TimingData)
+      : null,
+    history: data.ssrTiming
+      ? [
+          {
+            total: data.ssrTiming.total,
+            backend: data.ssrTiming.backend,
+            worker: data.ssrTiming.worker,
+            durableObject: data.ssrTiming.durableObject,
+            timestamp: data.ssrTimestamp,
+          } as TimingData,
+        ]
+      : [],
+    currentOperation: null as string | null,
+    operationStartTime: 0,
+  });
+
   let email = $state("");
   let password = $state("");
-  let name = $state("");
+  let isLoading = $state(false);
+  let isIncrementing = $state(false);
+
+  // Performance metrics state
+  type TimingData = {
+    total: number;
+    network?: number;
+    backend?: number;
+    worker?: number;
+    durableObject?: number;
+    timestamp: string;
+  };
+
+  function updateMetrics(timing: TimingData) {
+    metrics.lastTiming = timing;
+    metrics.history = [timing, ...metrics.history].slice(0, 20); // Keep last 20
+  }
+
+  function getAverageMetrics() {
+    if (metrics.history.length === 0) return null;
+
+    const totals = metrics.history.map((h) => h.total);
+    const avg = totals.reduce((a, b) => a + b, 0) / totals.length;
+    const min = Math.min(...totals);
+    const max = Math.max(...totals);
+    const sorted = [...totals].sort((a, b) => a - b);
+    const p95Index = Math.floor(sorted.length * 0.95);
+    const p95 = sorted[p95Index] || sorted[sorted.length - 1];
+
+    return { avg, min, max, p95 };
+  }
 
   async function handleSignIn() {
+    if (!email.trim()) {
+      alert("Email is required");
+      return;
+    }
+    if (!password.trim()) {
+      alert("Password is required");
+      return;
+    }
+    if (!email.includes("@")) {
+      alert("Please enter a valid email address");
+      return;
+    }
+
+    isLoading = true;
     try {
       await authStore.signIn(email, password);
+      email = "";
+      password = "";
     } catch (error) {
-      alert("AUTHENTICATION FAILED: " + (error as Error).message);
+      alert("Sign in failed: " + (error as Error).message);
+    } finally {
+      isLoading = false;
     }
   }
 
   async function handleSignUp() {
+    if (!email.trim()) {
+      alert("Email is required");
+      return;
+    }
+    if (!password.trim()) {
+      alert("Password is required");
+      return;
+    }
+    if (!email.includes("@")) {
+      alert("Please enter a valid email address");
+      return;
+    }
+    if (password.length < 6) {
+      alert("Password must be at least 6 characters");
+      return;
+    }
+
+    isLoading = true;
     try {
-      await authStore.signUp(email, password, name);
+      await authStore.signUp(email, password);
+      email = "";
+      password = "";
     } catch (error) {
-      alert("REGISTRATION FAILED: " + (error as Error).message);
+      alert("Registration failed: " + (error as Error).message);
+    } finally {
+      isLoading = false;
     }
   }
 
   async function refresh() {
+    const start = performance.now();
+    metrics.currentOperation = "REFRESH";
+    metrics.operationStartTime = start;
+
     counterData.count = 0;
-    counterData = await getCounter(counterId);
+    try {
+      counterData = await getCounter(counterId);
+      const end = performance.now();
+
+      const timing: TimingData = {
+        total: end - start,
+        backend: (counterData as any).timing?.backend,
+        worker: (counterData as any).timing?.worker,
+        durableObject: (counterData as any).timing?.durableObject,
+        timestamp: new Date().toISOString(),
+      };
+      updateMetrics(timing);
+    } finally {
+      metrics.currentOperation = null;
+    }
   }
 
   async function increment() {
-    counterData = await incrementCounter(counterId);
+    if (!authStore.user) {
+      alert("Please sign in to increment the counter");
+      return;
+    }
+
+    const start = performance.now();
+    metrics.currentOperation = "INCREMENT";
+    metrics.operationStartTime = start;
+
+    // Optimistic update
+    const originalCount = counterData.count;
+    counterData.count = originalCount + 1;
+    counterData.timestamp = new Date().toISOString();
+
+    isIncrementing = true;
+    try {
+      const networkStart = performance.now();
+      counterData = await incrementCounter(counterId);
+      const networkEnd = performance.now();
+      const totalEnd = performance.now();
+
+      const timing: TimingData = {
+        total: totalEnd - start,
+        network: networkEnd - networkStart,
+        backend: (counterData as any).timing?.backend,
+        worker: (counterData as any).timing?.worker,
+        durableObject: (counterData as any).timing?.durableObject,
+        timestamp: new Date().toISOString(),
+      };
+      updateMetrics(timing);
+    } catch (error: unknown) {
+      // Rollback optimistic update
+      counterData.count = originalCount;
+      const errorMsg = (error as Error).message;
+      if (errorMsg.includes("sign in")) {
+        alert("Please sign in to increment the counter");
+      } else {
+        alert("Failed to increment counter. Please try again.");
+      }
+    } finally {
+      isIncrementing = false;
+      metrics.currentOperation = null;
+    }
   }
 </script>
 
@@ -42,8 +198,64 @@
   <title>SVELTEKIT + BETTER AUTH + DURABLE OBJECTS</title>
 </svelte:head>
 
-<div class="bg-black text-white">
-  <div class="mx-auto max-w-2xl px-8 py-16">
+<header class="relative bg-black text-white overflow-hidden">
+  <!-- Animated Background -->
+  <div class="absolute inset-0 opacity-20">
+    <!-- Moving Grid Lines -->
+    <svg
+      class="absolute inset-0 w-full h-full"
+      xmlns="http://www.w3.org/2000/svg"
+    >
+      <defs>
+        <pattern id="grid" width="60" height="60" patternUnits="userSpaceOnUse">
+          <path
+            d="M 60 0 L 0 0 0 60"
+            fill="none"
+            stroke="white"
+            stroke-width="1"
+            opacity="0.3"
+          />
+        </pattern>
+        <pattern id="dots" width="30" height="30" patternUnits="userSpaceOnUse">
+          <circle cx="15" cy="15" r="1" fill="white" opacity="0.6" />
+        </pattern>
+      </defs>
+      <rect width="100%" height="100%" fill="url(#grid)" />
+      <rect width="100%" height="100%" fill="url(#dots)" />
+    </svg>
+
+    <!-- Animated Geometric Elements -->
+    <div class="absolute inset-0">
+      <!-- Moving diagonal lines -->
+      <div class="absolute w-full h-full">
+        <div
+          class="absolute top-0 left-0 w-0.5 h-full bg-white opacity-40 animate-slide-right"
+        ></div>
+        <div
+          class="absolute top-0 left-0 w-full h-0.5 bg-white opacity-30 animate-slide-down"
+        ></div>
+      </div>
+
+      <!-- Floating geometric shapes -->
+      <div
+        class="absolute top-1/4 left-1/4 w-4 h-4 border border-white opacity-60 animate-float-1"
+      ></div>
+      <div
+        class="absolute top-3/4 right-1/4 w-6 h-6 border border-white opacity-40 animate-float-2"
+      ></div>
+      <div
+        class="absolute bottom-1/4 left-1/3 w-2 h-2 bg-white opacity-50 animate-pulse-slow"
+      ></div>
+
+      <!-- Scanning line effect -->
+      <div
+        class="absolute top-0 left-0 w-full h-0.5 bg-gradient-to-r from-transparent via-white to-transparent opacity-80 animate-scan"
+      ></div>
+    </div>
+  </div>
+
+  <!-- Content overlay -->
+  <div class="relative z-10 mx-auto max-w-2xl px-8 py-16">
     <div class="flex items-center gap-4 mb-8">
       <svg
         xmlns="http://www.w3.org/2000/svg"
@@ -95,7 +307,7 @@
       >
     </div>
   </div>
-</div>
+</header>
 
 <div class="p-4">
   <div class="max-w-2xl mx-auto">
@@ -119,36 +331,40 @@
         <div class="space-y-4">
           <div class="grid grid-cols-1 gap-2">
             <input
-              type="text"
-              placeholder="NAME"
-              bind:value={name}
-              class="border-4 border-black bg-white text-black font-medium font-mono focus:outline-none focus:border-black focus:shadow-[4px_4px_0px_#000] px-4 py-3 text-sm"
-            />
-            <input
               type="email"
               placeholder="EMAIL"
               bind:value={email}
-              class="border-4 border-black bg-white text-black font-medium font-mono focus:outline-none focus:border-black focus:shadow-[4px_4px_0px_#000] px-4 py-3 text-sm"
+              class="border-4 border-black bg-white text-black font-medium font-mono focus:outline-none focus:border-black focus:shadow-[4px_4px_0px_#000] px-4 py-3 text-sm focus:ring-0 hover:ring-2 hover:ring-black"
             />
             <input
               type="password"
               placeholder="PASSWORD"
               bind:value={password}
-              class="border-4 border-black bg-white text-black font-medium font-mono focus:outline-none focus:border-black focus:shadow-[4px_4px_0px_#000] px-4 py-3 text-sm"
+              class="border-4 border-black bg-white text-black font-medium font-mono focus:outline-none focus:border-black focus:shadow-[4px_4px_0px_#000] px-4 py-3 text-sm focus:ring-0 hover:ring-1 hover:ring-red-200"
             />
           </div>
           <div class="flex gap-2">
             <button
               onclick={handleSignIn}
+              disabled={isLoading}
               class="border-4 border-black bg-white text-black font-bold uppercase tracking-wider transition-none cursor-pointer hover:bg-black hover:text-white disabled:bg-gray-300 disabled:text-gray-600 disabled:cursor-not-allowed disabled:hover:bg-gray-300 disabled:hover:text-gray-600 px-4 py-2 flex-1"
             >
-              SIGN IN
+              {#if isLoading}
+                SIGNING IN...
+              {:else}
+                SIGN IN
+              {/if}
             </button>
             <button
               onclick={handleSignUp}
+              disabled={isLoading}
               class="border-4 border-black bg-white text-black font-bold uppercase tracking-wider transition-none cursor-pointer hover:bg-black hover:text-white disabled:bg-gray-300 disabled:text-gray-600 disabled:cursor-not-allowed disabled:hover:bg-gray-300 disabled:hover:text-gray-600 px-4 py-2 flex-1"
             >
-              SIGN UP
+              {#if isLoading}
+                SIGNING UP...
+              {:else}
+                SIGN UP
+              {/if}
             </button>
           </div>
         </div>
@@ -174,12 +390,21 @@
         </button>
         <button
           onclick={increment}
+          disabled={!authStore.user || isIncrementing}
           class="border-4 border-black bg-white text-black font-bold uppercase tracking-wider transition-none cursor-pointer hover:bg-black hover:text-white disabled:bg-gray-300 disabled:text-gray-600 disabled:cursor-not-allowed disabled:hover:bg-gray-300 disabled:hover:text-gray-600 px-4 py-3 flex-1"
-          disabled={!authStore.user}
         >
-          +1 INCREMENT
-          {#if !authStore.user}
-            <span class="text-xs text-gray-500 block">AUTH REQUIRED</span>
+          {#if isIncrementing}
+            {#if metrics.currentOperation && metrics.operationStartTime}
+              INCREMENTING... {Math.round(
+                performance.now() - metrics.operationStartTime
+              )}MS
+            {:else}
+              INCREMENTING...
+            {/if}
+          {:else if !authStore.user}
+            +1 (AUTH REQUIRED)
+          {:else}
+            +1 INCREMENT
           {/if}
         </button>
       </div>
@@ -222,6 +447,104 @@
           </div>
         </div>
       </div>
+    </div>
+
+    <!-- PERFORMANCE METRICS -->
+    <div class="border-4 border-black bg-white p-6 mb-4">
+      <div class="text-lg font-bold uppercase mb-4">PERFORMANCE METRICS</div>
+
+      {#if metrics.lastTiming}
+        <div class="mb-6">
+          <div class="text-sm font-bold uppercase mb-2">
+            {#if metrics.history.length === 1}
+              INITIAL SSR LOAD
+            {:else}
+              LAST OPERATION
+            {/if}
+          </div>
+          <div
+            class="border-4 border-black bg-black text-white p-4 font-mono text-sm"
+          >
+            <div class="grid grid-cols-2 gap-4">
+              <div>
+                <div class="text-xs opacity-70">TOTAL E2E</div>
+                <div class="text-xl font-bold">
+                  {Math.round(metrics.lastTiming.total)}MS
+                </div>
+              </div>
+              {#if metrics.lastTiming.network}
+                <div>
+                  <div class="text-xs opacity-70">NETWORK</div>
+                  <div class="text-xl font-bold">
+                    {Math.round(metrics.lastTiming.network)}MS
+                  </div>
+                </div>
+              {/if}
+              {#if metrics.lastTiming.backend}
+                <div>
+                  <div class="text-xs opacity-70">BACKEND</div>
+                  <div class="text-xl font-bold">
+                    {Math.round(metrics.lastTiming.backend)}MS
+                  </div>
+                </div>
+              {/if}
+              {#if metrics.lastTiming.worker}
+                <div>
+                  <div class="text-xs opacity-70">WORKER</div>
+                  <div class="text-xl font-bold">
+                    {Math.round(metrics.lastTiming.worker)}MS
+                  </div>
+                </div>
+              {/if}
+              {#if metrics.lastTiming.durableObject}
+                <div>
+                  <div class="text-xs opacity-70">DURABLE OBJ</div>
+                  <div class="text-xl font-bold">
+                    {Math.round(metrics.lastTiming.durableObject)}MS
+                  </div>
+                </div>
+              {/if}
+            </div>
+          </div>
+        </div>
+      {/if}
+
+      {#if getAverageMetrics()}
+        {@const avgMetrics = getAverageMetrics()}
+        {#if avgMetrics}
+          <div class="mb-6">
+            <div class="text-sm font-bold uppercase mb-2">
+              ROLLING STATS (LAST {metrics.history.length})
+            </div>
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-2">
+              <div class="border-4 border-black p-3 text-center">
+                <div class="text-xs font-bold uppercase mb-1">AVG</div>
+                <div class="text-lg font-mono font-bold">
+                  {Math.round(avgMetrics.avg)}MS
+                </div>
+              </div>
+              <div class="border-4 border-black p-3 text-center">
+                <div class="text-xs font-bold uppercase mb-1">MIN</div>
+                <div class="text-lg font-mono font-bold">
+                  {Math.round(avgMetrics.min)}MS
+                </div>
+              </div>
+              <div class="border-4 border-black p-3 text-center">
+                <div class="text-xs font-bold uppercase mb-1">MAX</div>
+                <div class="text-lg font-mono font-bold">
+                  {Math.round(avgMetrics.max)}MS
+                </div>
+              </div>
+              <div class="border-4 border-black p-3 text-center">
+                <div class="text-xs font-bold uppercase mb-1">P95</div>
+                <div class="text-lg font-mono font-bold">
+                  {Math.round(avgMetrics.p95)}MS
+                </div>
+              </div>
+            </div>
+          </div>
+        {/if}
+      {/if}
     </div>
   </div>
 </div>
