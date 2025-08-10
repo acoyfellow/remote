@@ -1,9 +1,8 @@
 <script lang="ts">
   import "../app.css";
   import { authStore } from "$lib/auth-store.svelte";
-  import { onMount } from "svelte";
 
-  let { data, children, ...rest } = $props();
+  let { data, children } = $props();
 
   authStore.initialize(data.user, data.session);
 </script>

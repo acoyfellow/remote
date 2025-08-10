@@ -1,5 +1,5 @@
 import { browser } from '$app/environment';
-import { signIn, signOut, signUp } from '$lib/auth-client';
+import { signIn, signOut as signOutClient, signUp } from '$lib/auth-client';
 import type { User, Session } from '$lib/types';
 
 interface AuthState {
@@ -33,10 +33,12 @@ class AuthStore {
     this.state.isLoading = true;
     try {
       const result = await signIn.email({ email, password });
-      // Better Auth should automatically update session, but we can refresh to be sure
-      if (browser) {
-        window.location.reload(); // Simple approach - could be more sophisticated
-      }
+      console.log('signIn', {result});
+      if(result.error){
+        return alert(result.error.message);
+      };
+      this.state.user = result.data.user;
+      this.state.isLoading = false;
       return result;
     } catch (error) {
       this.state.isLoading = false;
@@ -52,10 +54,10 @@ class AuthStore {
         password,
         name: name || email.split('@')[0]
       });
-      // Better Auth should automatically update session
-      if (browser) {
-        window.location.reload();
-      }
+      console.log('signUp', {result});
+      if(result.error){
+        return alert(result.error.message);
+      };
       return result;
     } catch (error) {
       this.state.isLoading = false;
@@ -66,11 +68,12 @@ class AuthStore {
   async signOut() {
     this.state.isLoading = true;
     try {
-      await signOut();
+      await signOutClient();
       this.state.user = null;
       this.state.session = null;
       this.state.isLoading = false;
     } catch (error) {
+      console.error('signOut', error);
       this.state.isLoading = false;
       throw error;
     }

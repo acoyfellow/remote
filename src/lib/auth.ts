@@ -22,6 +22,7 @@ export function createAuth(db: D1Database, env?: any) {
   });
 
   return betterAuth({
+    trustedOrigins: ["http://localhost:3000", "https://example.com"],
     database: drizzleAdapter(drizzleDb, {
       provider: 'sqlite',
       schema: {
@@ -33,6 +34,7 @@ export function createAuth(db: D1Database, env?: any) {
     }),
     emailAndPassword: {
       enabled: true,
+      autoSignIn: true,
       requireEmailVerification: false,
     },
     session: {

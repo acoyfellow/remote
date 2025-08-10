@@ -1,6 +1,6 @@
 import alchemy from 'alchemy/cloudflare/sveltekit';
 import { vitePreprocess } from '@sveltejs/vite-plugin-svelte';
-// import adapter from '@sveltejs/adapter-cloudflare';
+import adapter from '@sveltejs/adapter-cloudflare';
 
 /** @type {import('@sveltejs/kit').Config} */
 const config = {
@@ -11,7 +11,7 @@ const config = {
 		adapter: alchemy(),
     // adapter: adapter({
 		// 	platformProxy: {
-		// 		persist: { path: ".wrangler/state/v3" }
+		// 		persist: { path: ".alchemy/miniflare/v3" }
 		// 	}
 		// }),
     experimental: {
