@@ -9,6 +9,9 @@ export class CounterDO extends DurableObject {
     const durableObjectStart = performance.now();
     
     try {
+      // Keep DO warm with periodic alarms
+      await this.ensureKeepAlive();
+      
       // Get current count from storage
       const storageStart = performance.now();
       const count = await this.ctx.storage.get<number>('count') || 0;
@@ -59,6 +62,21 @@ export class CounterDO extends DurableObject {
       );
     }
   }
+
+  // Keep-alive mechanism using alarms
+  private async ensureKeepAlive() {
+    const currentAlarm = await this.ctx.storage.getAlarm();
+    if (currentAlarm === null) {
+      // Set alarm for 30 seconds from now to keep DO warm
+      await this.ctx.storage.setAlarm(Date.now() + 30 * 1000);
+    }
+  }
+
+  // Alarm handler - just reschedule to stay warm
+  async alarm() {
+    // Reschedule next keep-alive
+    await this.ctx.storage.setAlarm(Date.now() + 30 * 1000);
+  }
 }
 
 export default {
@@ -75,7 +93,7 @@ export default {
         if (!counterId || counterId.length > 50) {
           return new Response('Invalid counter ID', { status: 400 });
         }
-        
+
         const id = env.COUNTER_DO.idFromName(counterId);
         const counter = env.COUNTER_DO.get(id);
         return await counter.fetch(request);
