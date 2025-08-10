@@ -16,6 +16,7 @@ jobs:
       - run: bun install
       - run: bun run deploy
         env:
+          ALCHEMY_PASSWORD: ${{ secrets.ALCHEMY_PASSWORD }}
           BETTER_AUTH_URL: ${{ secrets.BETTER_AUTH_URL }}
           CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
@@ -29,6 +30,7 @@ jobs:
       - run: bun install
       - run: bun run destroy --stage ${{ github.head_ref }}
         env:
+          ALCHEMY_PASSWORD: ${{ secrets.ALCHEMY_PASSWORD }}
           BETTER_AUTH_URL: ${{ secrets.BETTER_AUTH_URL }}
           CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
