@@ -1,6 +1,6 @@
 {
   "name": "create-remote-app",
-  "version": "0.0.1",
+  "version": "0.0.3",
   "description": "Create a new SvelteKit + Better Auth + Durable Objects app",
   "type": "module",
   "bin": {
@@ -15,7 +15,10 @@
     "build": "echo 'No build step needed'",
     "test": "echo 'No tests yet'",
     "prepublishOnly": "echo 'Publishing create-remote-app...'",
-    "publish": "npm publish"
+    "release:patch": "npm version patch && npm publish",
+    "release:minor": "npm version minor && npm publish",
+    "release:major": "npm version major && npm publish",
+    "release": "npm run release:patch"
   },
   "keywords": [
     "sveltekit",

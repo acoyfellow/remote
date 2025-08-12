@@ -8,10 +8,7 @@ Barebones SvelteKit + Better Auth + Durable Objects starter.
 # 1. Set your Alchemy password
 echo 'ALCHEMY_PASSWORD=your-secure-password' > .env
 
-# 2. Run database migrations for auth
-bun run db:migrate
-
-# 3. Start development
+# 2. Start development (migrations run automatically)
 bun run dev
 ```
 
@@ -115,11 +112,10 @@ Optional:
 
 ## Scripts
 
-- `bun run dev` - Start development server
+- `bun run dev` - Start development server (runs migrations automatically)
 - `bun run build` - Build for production
 - `bun run deploy` - Deploy to Cloudflare
-- `bun run db:migrate` - Run database migrations
-- `bun run db:studio` - Open Drizzle Studio
+- `bun run db:studio` - Open Drizzle Studio (for local development)
 
 ## Deployment
 

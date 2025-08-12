@@ -90,7 +90,7 @@ To run this demo repo locally:
 bun install
 echo 'ALCHEMY_PASSWORD=your-password' > .env
 echo 'BETTER_AUTH_SECRET=your-secret-key-here' >> .env
-bun run dev
+bun run dev  # Alchemy handles migrations automatically
 ```
 
 Open http://localhost:5173 to see the authenticated counter interface.
@@ -199,17 +199,17 @@ This is a pragmatic starting point for projects needing authenticated persistent
 ## Getting Started
 
 1. **Create a new project**: `npm create remote-app my-app`
-2. **Explore this demo**: Clone this repo to see the full counter example
-3. **Deploy**: Both the CLI-generated project and this demo deploy with `bun run deploy`
+2. **Set your ALCHEMY_PASSWORD** in `.env`
+3. **Start developing**: `bun run dev` (Alchemy handles migrations automatically)
+4. **Deploy**: `bun run deploy`
 
 ## Scripts
 
-- `bun run dev` - Development server
+- `bun run dev` - Development server (runs migrations automatically)
 - `bun run deploy` - Deploy to Cloudflare
 - `bun run destroy` - Remove infrastructure  
 - `bun run build` - Build for production
-- `bun run db:migrate` - Run database migrations
-- `bun run db:studio` - Open Drizzle Studio
+- `bun run db:studio` - Open Drizzle Studio (for local development)
 
 ## Requirements
 
