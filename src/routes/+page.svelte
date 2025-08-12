@@ -277,7 +277,7 @@
     <div
       class="bg-white/10 border border-white/20 rounded p-4 mb-8 max-w-3xl space-y-4"
     >
-      <div class="text-sm font-mono text-white/90"></div>
+      <div class="text-sm font-mono text-white/90">
         Create your own project with this stack:
       </div>
       <p class="text-sm font-mono text-white/90">
