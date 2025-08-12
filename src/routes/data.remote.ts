@@ -12,19 +12,15 @@ type CounterData = {
   };
 };
 
-function buildWorkerUrl(endpoint: string): string {
-  return dev ? `http://localhost:1337${endpoint}` : `http://worker${endpoint}`;
-}
-
-async function callWorker(
+// Cloudflare requires DOs to be accessed via Worker (cannot bind SvelteKit directly to DO)
+// Dev: HTTP to localhost:1337 | Prod: Service binding RPC
+async function callWorkerForDO(
   platform: App.Platform | undefined,
   endpoint: string,
   options: RequestInit = {}
 ): Promise<Response> {
-  const url = buildWorkerUrl(endpoint);
-  if (dev) return fetch(url, options);
-  const request = new Request(url, options);
-  return platform!.env!.WORKER.fetch(request);
+  if (dev) return fetch(`http://localhost:1337${endpoint}`, options);
+  return platform!.env!.WORKER.fetch(new Request(`http://worker${endpoint}`, options));
 }
 
 async function callWorkerJSON<T>(
@@ -33,19 +29,21 @@ async function callWorkerJSON<T>(
   options?: RequestInit
 ): Promise<T> {
   try {
-    const res = await callWorker(platform, endpoint, options);
-    if (!res.ok) {
-      const errorText = await res.text().catch(() => 'Service error');
+    const response = await callWorkerForDO(platform, endpoint, options);
+    
+    if (!response.ok) {
+      const errorText = await response.text().catch(() => 'Service error');
       
       // Parse JSON error if available
       try {
         const errorJson = JSON.parse(errorText);
-        throw new Error(errorJson.error || `Service error (${res.status})`);
+        throw new Error(errorJson.error || `Service error (${response.status})`);
       } catch {
-        throw new Error(`Service error (${res.status}): ${errorText}`);
+        throw new Error(`Service error (${response.status}): ${errorText}`);
       }
     }
-    return res.json() as Promise<T>;
+    
+    return response.json() as Promise<T>;
   } catch (error) {
     // Graceful fallback for network/worker failures
     if (error instanceof TypeError && error.message.includes('fetch')) {
@@ -55,7 +53,7 @@ async function callWorkerJSON<T>(
   }
 }
 
-// Remote functions to interact with the Counter Durable Object
+// Remote functions - must route through worker to reach DOs (Cloudflare requirement)
 export const getCounter = query('unchecked', async (counterId: string = 'default'): Promise<CounterData> => {
   const backendStart = performance.now();
   try {

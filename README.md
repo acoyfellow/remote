@@ -1,8 +1,25 @@
 # Remote - SvelteKit + Better Auth + Durable Objects
 
-Barebones starter for building authenticated apps with persistent state on the edge. 
+Barebones starter for building authenticated apps with persistent state on the edge.
 
-## What This Shows
+## Quick Start
+
+Create a new project with the CLI:
+
+```bash
+# npm
+npm create remote-app my-app
+
+# bun (recommended)  
+bun create remote-app my-app
+
+# npx
+npx create-remote-app my-app
+```
+
+Then follow the setup guide in your new project's README.
+
+## What This Repo Shows
 
 This project demonstrates:
 
@@ -50,7 +67,24 @@ alchemy.run.ts             # Deployment configuration
 migrations/                # Database migrations for auth
 ```
 
-## Setup
+## CLI Tool
+
+This repo includes a CLI tool for creating new projects:
+
+```bash
+npm create remote-app my-app
+```
+
+The CLI creates a barebones starter (without the counter demo) that includes:
+- Working authentication with Better Auth
+- Template Durable Objects with setup guides
+- Example remote functions with auth patterns
+- Complete deployment configuration
+- Detailed setup documentation
+
+## Demo Setup (This Repo)
+
+To run this demo repo locally:
 
 ```bash
 bun install
@@ -161,6 +195,12 @@ Traditional approach requires manual API routes and fetch calls. This starter pr
 - **Zero-config deployment** to Cloudflare edge
 
 This is a pragmatic starting point for projects needing authenticated persistent edge state with SvelteKit.
+
+## Getting Started
+
+1. **Create a new project**: `npm create remote-app my-app`
+2. **Explore this demo**: Clone this repo to see the full counter example
+3. **Deploy**: Both the CLI-generated project and this demo deploy with `bun run deploy`
 
 ## Scripts
 

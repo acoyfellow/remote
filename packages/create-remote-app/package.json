@@ -1,0 +1,47 @@
+{
+  "name": "create-remote-app",
+  "version": "0.0.1",
+  "description": "Create a new SvelteKit + Better Auth + Durable Objects app",
+  "type": "module",
+  "bin": {
+    "create-remote-app": "./bin/create-remote-app"
+  },
+  "files": [
+    "bin",
+    "src",
+    "template"
+  ],
+  "scripts": {
+    "build": "echo 'No build step needed'",
+    "test": "echo 'No tests yet'",
+    "prepublishOnly": "echo 'Publishing create-remote-app...'",
+    "publish": "npm publish"
+  },
+  "keywords": [
+    "sveltekit",
+    "cloudflare",
+    "durable-objects",
+    "better-auth",
+    "template",
+    "starter",
+    "cli",
+    "create"
+  ],
+  "author": "remote",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/acoyfellow/remote.git",
+    "directory": "packages/create-remote-app"
+  },
+  "homepage": "https://github.com/acoyfellow/remote#readme",
+  "dependencies": {
+    "prompts": "^2.4.2",
+    "kleur": "^4.1.5",
+    "fs-extra": "^11.2.0",
+    "crypto": "^1.0.1"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}

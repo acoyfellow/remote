@@ -269,11 +269,21 @@
     <h1 class="text-5xl font-black tracking-tight mb-6 leading-none">
       SVELTEKIT + BETTER AUTH + DURABLE OBJECTS
     </h1>
-    <p class="text-lg font-medium mb-8 max-w-3xl">
+    <p class="text-lg font-medium mb-4 max-w-3xl">
       BAREBONES STARTER FOR BUILDING AUTHENTICATED APPS WITH PERSISTENT STATE ON
       THE EDGE. UTILIZING CLOUDFLARE D1, DURABLE OBJECTS, AND BETTER AUTH, AND
       SVELTEKIT'S REMOTE FUNCTIONS.
     </p>
+    <div
+      class="bg-white/10 border border-white/20 rounded p-4 mb-8 max-w-3xl space-y-4"
+    >
+      <div class="text-sm font-mono text-white/90"></div>
+        Create your own project with this stack:
+      </div>
+      <p class="text-sm font-mono text-white/90">
+        <span class="text-white font-bold">npm create remote-app my-app</span>
+      </p>
+    </div>
     <div class="flex gap-4">
       <a
         href="https://github.com/acoyfellow/remote"
