@@ -1,0 +1,23 @@
+{
+  "name": "Remote App",
+  "image": "mcr.microsoft.com/devcontainers/javascript-node:18",
+  "features": {
+    "ghcr.io/devcontainers/features/bun:1": {}
+  },
+  "postCreateCommand": "bun install && echo 'ALCHEMY_PASSWORD=demo-password' > .env",
+  "forwardPorts": [5173, 1337],
+  "portsAttributes": {
+    "5173": {
+      "label": "SvelteKit App",
+      "onAutoForward": "openPreview"
+    }
+  },
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "svelte.svelte-vscode",
+        "bradlc.vscode-tailwindcss"
+      ]
+    }
+  }
+}
