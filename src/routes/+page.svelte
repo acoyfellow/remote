@@ -281,7 +281,7 @@
         Create your own project with this stack:
       </div>
       <p class="text-sm font-mono text-white/90">
-        <span class="text-white font-bold">npm create remote-app my-app</span>
+        <span class="text-white font-bold">bun create remote-app my-app</span>
       </p>
     </div>
     <div class="flex gap-4">
