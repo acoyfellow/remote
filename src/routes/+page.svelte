@@ -8,28 +8,18 @@
   let counterId = $state(data.counterId);
   let counterData = $state(data.counterData);
 
+  const defaultTiming = {
+    total: data.ssrTiming.total,
+    backend: data.ssrTiming.backend,
+    worker: data.ssrTiming.worker,
+    durableObject: data.ssrTiming.durableObject,
+    timestamp: data.ssrTimestamp,
+  } as TimingData;
+
   // Initialize metrics with SSR timing on page load
   let metrics = $state({
-    lastTiming: data.ssrTiming
-      ? ({
-          total: data.ssrTiming.total,
-          backend: data.ssrTiming.backend,
-          worker: data.ssrTiming.worker,
-          durableObject: data.ssrTiming.durableObject,
-          timestamp: data.ssrTimestamp,
-        } as TimingData)
-      : null,
-    history: data.ssrTiming
-      ? [
-          {
-            total: data.ssrTiming.total,
-            backend: data.ssrTiming.backend,
-            worker: data.ssrTiming.worker,
-            durableObject: data.ssrTiming.durableObject,
-            timestamp: data.ssrTimestamp,
-          } as TimingData,
-        ]
-      : [],
+    lastTiming: data.ssrTiming ? defaultTiming : null,
+    history: data.ssrTiming ? [defaultTiming] : [],
     currentOperation: null as string | null,
     operationStartTime: 0,
   });
@@ -309,8 +299,118 @@
   </div>
 </header>
 
-<div class="p-4">
-  <div class="max-w-2xl mx-auto">
+<div class="relative p-4 overflow-hidden">
+  <!-- Inverted Animated Background for Body -->
+  <div class="absolute inset-0 opacity-15">
+    <!-- Moving Grid Lines -->
+    <svg
+      class="absolute inset-0 w-full h-full"
+      xmlns="http://www.w3.org/2000/svg"
+    >
+      <defs>
+        <pattern
+          id="grid-body"
+          width="60"
+          height="60"
+          patternUnits="userSpaceOnUse"
+        >
+          <path
+            d="M 60 0 L 0 0 0 60"
+            fill="none"
+            stroke="black"
+            stroke-width="1"
+            opacity="0.4"
+          />
+        </pattern>
+        <pattern
+          id="dots-body"
+          width="30"
+          height="30"
+          patternUnits="userSpaceOnUse"
+        >
+          <circle cx="15" cy="15" r="1.5" fill="black" opacity="0.7" />
+        </pattern>
+        <pattern
+          id="cross-body"
+          width="40"
+          height="40"
+          patternUnits="userSpaceOnUse"
+        >
+          <path
+            d="M 20 18 L 20 22 M 18 20 L 22 20"
+            stroke="black"
+            stroke-width="1"
+            opacity="0.5"
+          />
+        </pattern>
+      </defs>
+      <rect width="100%" height="100%" fill="url(#grid-body)" />
+      <rect width="100%" height="100%" fill="url(#dots-body)" />
+      <rect width="100%" height="100%" fill="url(#cross-body)" />
+    </svg>
+
+    <!-- Animated Geometric Elements -->
+    <div class="absolute inset-0">
+      <!-- Moving diagonal lines -->
+      <div class="absolute w-full h-full">
+        <div
+          class="absolute top-0 left-0 w-0.5 h-full bg-black opacity-50 animate-slide-right"
+        ></div>
+        <div
+          class="absolute top-0 left-0 w-full h-0.5 bg-black opacity-40 animate-slide-down"
+        ></div>
+        <!-- Additional crossing lines -->
+        <div
+          class="absolute top-0 right-0 w-0.5 h-full bg-black opacity-30 animate-slide-right"
+          style="animation-delay: -4s;"
+        ></div>
+        <div
+          class="absolute bottom-0 left-0 w-full h-0.5 bg-black opacity-35 animate-slide-down"
+          style="animation-delay: -6s;"
+        ></div>
+      </div>
+
+      <!-- Floating geometric shapes -->
+      <div
+        class="absolute top-1/4 left-1/4 w-4 h-4 border border-black opacity-70 animate-float-1"
+      ></div>
+      <div
+        class="absolute top-3/4 right-1/4 w-6 h-6 border border-black opacity-50 animate-float-2"
+      ></div>
+      <div
+        class="absolute bottom-1/4 left-1/3 w-2 h-2 bg-black opacity-60 animate-pulse-slow"
+      ></div>
+
+      <!-- Additional floating shapes -->
+      <div
+        class="absolute top-1/2 right-1/3 w-3 h-3 border-2 border-black opacity-55 animate-float-1"
+        style="animation-delay: -2s;"
+      ></div>
+      <div
+        class="absolute top-1/6 left-2/3 w-5 h-5 border border-black opacity-45 animate-float-2"
+        style="animation-delay: -3s;"
+      ></div>
+      <div
+        class="absolute bottom-1/3 right-1/2 w-1.5 h-1.5 bg-black opacity-65 animate-pulse-slow"
+        style="animation-delay: -1s;"
+      ></div>
+      <div
+        class="absolute top-2/3 left-1/6 w-4 h-1 bg-black opacity-40 animate-float-1"
+        style="animation-delay: -5s;"
+      ></div>
+
+      <!-- Scanning line effects -->
+      <div
+        class="absolute top-0 left-0 w-full h-0.5 bg-gradient-to-r from-transparent via-black to-transparent opacity-90 animate-scan"
+      ></div>
+      <div
+        class="absolute top-0 left-0 h-full w-0.5 bg-gradient-to-b from-transparent via-black to-transparent opacity-70 animate-scan"
+        style="animation-delay: -2s; animation-duration: 6s;"
+      ></div>
+    </div>
+  </div>
+
+  <div class="relative z-10 max-w-2xl mx-auto">
     <!-- AUTH -->
     <div class="border-4 border-black bg-white p-6 mb-4">
       <div class="text-lg font-bold uppercase mb-4">AUTH STATUS</div>
@@ -377,7 +477,9 @@
 
       <div class="text-center mb-6">
         <div class="border-4 border-black inline-block p-8">
-          <span class="text-6xl font-bold font-mono">{counterData.count}</span>
+          <span class="text-6xl font-bold font-mono"
+            >{counterData.count.toLocaleString()}</span
+          >
         </div>
       </div>
 
@@ -547,78 +649,78 @@
       {/if}
     </div>
   </div>
-</div>
 
-<div class="bg-gray-50 py-16">
-  <div class="mx-auto max-w-2xl px-8">
-    <div class="mb-12">
-      <h2 class="text-3xl font-black mb-2">STACK</h2>
-      <div class="w-16 h-1 bg-black"></div>
-    </div>
-    <div class="grid grid-cols-2 md:grid-cols-3 gap-4">
-      <a
-        href="https://kit.svelte.dev"
-        target="_blank"
-        class="p-4 border-2 border-black bg-white text-center font-black hover:bg-black hover:text-white transition-none"
-      >
-        SVELTEKIT
-      </a>
-      <a
-        href="https://www.better-auth.com"
-        target="_blank"
-        class="p-4 border-2 border-black bg-white text-center font-black hover:bg-black hover:text-white transition-none"
-      >
-        BETTER AUTH
-      </a>
-      <a
-        href="https://developers.cloudflare.com/durable-objects"
-        target="_blank"
-        class="p-4 border-2 border-black bg-white text-center font-black hover:bg-black hover:text-white transition-none"
-      >
-        DURABLE OBJECTS
-      </a>
-      <a
-        href="https://www.typescriptlang.org"
-        target="_blank"
-        class="p-4 border-2 border-black bg-white text-center font-black hover:bg-black hover:text-white transition-none"
-      >
-        TYPESCRIPT
-      </a>
-      <a
-        href="https://orm.drizzle.team"
-        target="_blank"
-        class="p-4 border-2 border-black bg-white text-center font-black hover:bg-black hover:text-white transition-none"
-      >
-        DRIZZLE ORM
-      </a>
-      <a
-        href="https://developers.cloudflare.com/d1"
-        target="_blank"
-        class="p-4 border-2 border-black bg-white text-center font-black hover:bg-black hover:text-white transition-none"
-      >
-        CLOUDFLARE D1
-      </a>
-      <a
-        href="https://tailwindcss.com"
-        target="_blank"
-        class="p-4 border-2 border-black bg-white text-center font-black hover:bg-black hover:text-white transition-none"
-      >
-        TAILWIND
-      </a>
-      <a
-        href="https://svelte.dev"
-        target="_blank"
-        class="p-4 border-2 border-black bg-white text-center font-black hover:bg-black hover:text-white transition-none"
-      >
-        SVELTE 5
-      </a>
-      <a
-        href="https://alchemy.run"
-        target="_blank"
-        class="p-4 border-2 border-black bg-white text-center font-black hover:bg-black hover:text-white transition-none"
-      >
-        ALCHEMY
-      </a>
+  <div class="py-16 relative z-10">
+    <div class="mx-auto max-w-2xl px-8">
+      <div class="mb-12">
+        <h2 class="text-3xl font-white mb-2">STACK</h2>
+        <div class="w-16 h-1 bg-white"></div>
+      </div>
+      <div class="grid grid-cols-2 md:grid-cols-3 gap-4">
+        <a
+          href="https://kit.svelte.dev"
+          target="_blank"
+          class="p-4 border-2 border-black bg-white text-center font-black hover:bg-black hover:text-white transition-none"
+        >
+          SVELTEKIT
+        </a>
+        <a
+          href="https://www.better-auth.com"
+          target="_blank"
+          class="p-4 border-2 border-black bg-white text-center font-black hover:bg-black hover:text-white transition-none"
+        >
+          BETTER AUTH
+        </a>
+        <a
+          href="https://developers.cloudflare.com/durable-objects"
+          target="_blank"
+          class="p-4 border-2 border-black bg-white text-center font-black hover:bg-black hover:text-white transition-none"
+        >
+          DURABLE OBJECTS
+        </a>
+        <a
+          href="https://www.typescriptlang.org"
+          target="_blank"
+          class="p-4 border-2 border-black bg-white text-center font-black hover:bg-black hover:text-white transition-none"
+        >
+          TYPESCRIPT
+        </a>
+        <a
+          href="https://orm.drizzle.team"
+          target="_blank"
+          class="p-4 border-2 border-black bg-white text-center font-black hover:bg-black hover:text-white transition-none"
+        >
+          DRIZZLE ORM
+        </a>
+        <a
+          href="https://developers.cloudflare.com/d1"
+          target="_blank"
+          class="p-4 border-2 border-black bg-white text-center font-black hover:bg-black hover:text-white transition-none"
+        >
+          CLOUDFLARE D1
+        </a>
+        <a
+          href="https://tailwindcss.com"
+          target="_blank"
+          class="p-4 border-2 border-black bg-white text-center font-black hover:bg-black hover:text-white transition-none"
+        >
+          TAILWIND
+        </a>
+        <a
+          href="https://svelte.dev"
+          target="_blank"
+          class="p-4 border-2 border-black bg-white text-center font-black hover:bg-black hover:text-white transition-none"
+        >
+          SVELTE 5
+        </a>
+        <a
+          href="https://alchemy.run"
+          target="_blank"
+          class="p-4 border-2 border-black bg-white text-center font-black hover:bg-black hover:text-white transition-none"
+        >
+          ALCHEMY
+        </a>
+      </div>
     </div>
   </div>
 </div>
