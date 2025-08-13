@@ -280,48 +280,8 @@
       <div class="text-sm font-mono text-white/90">
         Create your own project with this stack:
       </div>
-      <!-- <div class="flex flex-col sm:flex-row gap-3 items-start">
-        <div class="flex w-full gap-2">
-          <a
-            href="https://stackblitz.com/github/acoyfellow/remote/tree/main/packages/create-remote-app/template?file=README.md&terminal=bun%20install%26%26bun%20run%20dev"
-            target="_blank"
-            class="inline-flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-3 rounded text-sm transition-colors"
-          >
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
-              <path
-                d="M10.5 2.5L15.5 7.5L10.5 12.5V9.5H1.5V5.5H10.5V2.5ZM22.5 12.5L17.5 7.5L22.5 2.5V5.5H13.5V9.5H22.5V12.5Z"
-              />
-            </svg>
-            StackBlitz
-          </a>
-          <a
-            href="https://gitpod.io/#https://github.com/acoyfellow/remote/tree/main/packages/create-remote-app/template"
-            target="_blank"
-            class="inline-flex items-center gap-2 bg-orange-600 hover:bg-orange-700 text-white font-bold py-2 px-3 rounded text-sm transition-colors"
-          >
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
-              <path d="M12 2L2 7L12 12L22 7L12 2Z" />
-              <path d="M2 17L12 22L22 17" />
-              <path d="M2 12L12 17L22 12" />
-            </svg>
-            Gitpod
-          </a>
-          <a
-            href="https://github.com/codespaces/new?hide_repo_select=true&ref=main&repo=acoyfellow/remote&machine=basicLinux32gb&devcontainer_path=packages%2Fcreate-remote-app%2Ftemplate%2F.devcontainer%2Fdevcontainer.json"
-            target="_blank"
-            class="inline-flex items-center gap-2 bg-gray-800 hover:bg-gray-900 text-white font-bold py-2 px-3 rounded text-sm transition-colors"
-          >
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
-              <path
-                d="M12 0C5.37 0 0 5.37 0 12C0 17.31 3.435 21.795 8.205 23.385C8.805 23.49 9.03 23.13 9.03 22.815C9.03 22.53 9.015 21.585 9.015 20.55C6 21.135 5.22 19.845 4.98 19.17C4.845 18.825 4.26 17.73 3.75 17.445C3.33 17.22 2.73 16.635 3.735 16.62C4.68 16.605 5.355 17.52 5.58 17.88C6.66 19.725 8.385 19.215 9.075 18.9C9.18 18.12 9.495 17.595 9.84 17.295C7.17 16.995 4.38 15.96 4.38 11.37C4.38 10.065 4.845 8.985 5.61 8.145C5.49 7.845 5.07 6.615 5.73 4.965C5.73 4.965 6.735 4.65 9.03 6.195C9.99 5.925 11.01 5.79 12.03 5.79C13.05 5.79 14.07 5.925 15.03 6.195C17.325 4.635 18.33 4.965 18.33 4.965C18.99 6.615 18.57 7.845 18.45 8.145C19.215 8.985 19.68 10.05 19.68 11.37C19.68 15.975 16.875 16.995 14.205 17.295C14.64 17.67 15.015 18.39 15.015 19.515C15.015 21.12 15 22.41 15 22.815C15 23.13 15.225 23.505 15.825 23.385C20.565 21.795 24 17.295 24 12C24 5.37 18.63 0 12 0Z"
-              />
-            </svg>
-            Codespaces
-          </a>
-        </div>
-      </div> -->
+
       <div class="text-xl font-mono text-white/70 space-y-4">
-        <!-- <div class="block">or:</div> -->
         <div class="text-white font-bold">bun create remote-app my-app</div>
       </div>
     </div>

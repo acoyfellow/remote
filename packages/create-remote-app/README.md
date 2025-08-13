@@ -23,7 +23,7 @@ A barebones starter with:
 - **Better Auth** with email/password authentication  
 - **Cloudflare D1** database for user data
 - **Durable Objects** for persistent edge state
-- **Alchemy** for zero-config deployment
+- **Alchemy** for zero-config dev & deployment
 
 ## Quick Start
 
@@ -33,9 +33,6 @@ cd my-app
 
 # Set your Alchemy password
 echo 'ALCHEMY_PASSWORD=your-secure-password' > .env
-
-# Run database migrations
-bun run db:migrate
 
 # Start development
 bun run dev
