@@ -13,7 +13,10 @@ import type { CounterDO } from "./worker/index.ts";
 
 const projectName = "remote";
 
-console.log("env", Object.keys(process.env));
+console.log({
+  stateToken: process.env.ALCHEMY_STATE_TOKEN,
+  password: process.env.ALCHEMY_PASSWORD,
+});
 
 const project = await alchemy(projectName, {
   password: process.env.ALCHEMY_PASSWORD || "default-password",
