@@ -7,12 +7,15 @@ import {
   D1Database
 } from "alchemy/cloudflare";
 
+import { CloudflareStateStore } from "alchemy/state";
+
 import type { CounterDO } from "./worker/index.ts";
 
 const projectName = "remote";
 
 const project = await alchemy(projectName, {
-  password: process.env.ALCHEMY_PASSWORD || "default-password"
+  password: process.env.ALCHEMY_PASSWORD || "default-password",
+  stateStore: (scope) => new CloudflareStateStore(scope)
 });
 
 const COUNTER_DO = DurableObjectNamespace<CounterDO>(`${projectName}-do`, {
