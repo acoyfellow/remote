@@ -15,7 +15,10 @@ const projectName = "remote";
 
 const project = await alchemy(projectName, {
   password: process.env.ALCHEMY_PASSWORD || "default-password",
-  stateStore: (scope) => new CloudflareStateStore(scope)
+  stateStore: (scope) => new CloudflareStateStore(scope, {
+    scriptName: `${projectName}-ci-state`,
+    stateToken: alchemy.secret(process.env.ALCHEMY_STATE_TOKEN)
+  })
 });
 
 const COUNTER_DO = DurableObjectNamespace<CounterDO>(`${projectName}-do`, {
