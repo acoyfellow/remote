@@ -1,25 +1,31 @@
 {
   "name": "create-remote-app",
-  "version": "0.0.5",
-  "description": "Create a new SvelteKit + Better Auth + Durable Objects app",
-  "type": "module",
+  "version": "0.0.6",
+  "author": "remote",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/acoyfellow/remote.git",
+    "directory": "packages/create-remote-app"
+  },
+  "dependencies": {
+    "prompts": "^2.4.2",
+    "kleur": "^4.1.5",
+    "fs-extra": "^11.2.0",
+    "crypto": "^1.0.1"
+  },
   "bin": {
     "create-remote-app": "./bin/create-remote-app"
+  },
+  "description": "Create a new SvelteKit + Better Auth + Durable Objects app",
+  "engines": {
+    "node": ">=18.0.0"
   },
   "files": [
     "bin",
     "src",
     "template"
   ],
-  "scripts": {
-    "build": "echo 'No build step needed'",
-    "test": "echo 'No tests yet'",
-    "prepublishOnly": "echo 'Publishing create-remote-app...'",
-    "release:patch": "npm version patch && npm publish",
-    "release:minor": "npm version minor && npm publish",
-    "release:major": "npm version major && npm publish",
-    "release": "npm run release:patch"
-  },
+  "homepage": "https://github.com/acoyfellow/remote#readme",
   "keywords": [
     "sveltekit",
     "cloudflare",
@@ -30,24 +36,15 @@
     "cli",
     "create"
   ],
-  "author": "remote",
   "license": "MIT",
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/acoyfellow/remote.git",
-    "directory": "packages/create-remote-app"
+  "scripts": {
+    "build": "echo 'No build step needed'",
+    "test": "echo 'No tests yet'",
+    "prepublishOnly": "echo 'Publishing create-remote-app...'",
+    "release:patch": "npm version patch && npm publish",
+    "release:minor": "npm version minor && npm publish",
+    "release:major": "npm version major && npm publish",
+    "release": "npm run release:patch"
   },
-  "homepage": "https://github.com/acoyfellow/remote#readme",
-  "dependencies": {
-    "prompts": "^2.4.2",
-    "kleur": "^4.1.5",
-    "fs-extra": "^11.2.0",
-    "crypto": "^1.0.1"
-  },
-  "engines": {
-    "node": ">=18.0.0"
-  },
-  "devDependencies": {
-    "@tailwindcss/vite": "^4.1.11"
-  }
+  "type": "module"
 }
