@@ -4,6 +4,8 @@ Barebones SvelteKit + Better Auth + Durable Objects starter.
 
 ## Quick Start
 
+### Local Development
+
 ```bash
 # 1. Set your Alchemy password
 echo 'ALCHEMY_PASSWORD=your-secure-password' > .env
@@ -11,6 +13,10 @@ echo 'ALCHEMY_PASSWORD=your-secure-password' > .env
 # 2. Start development (migrations run automatically)
 bun run dev
 ```
+
+### StackBlitz
+
+The template works in StackBlitz - just run `npm run dev` and it will set up the environment automatically.
 
 ## What's Included
 

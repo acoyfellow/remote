@@ -1,0 +1,9 @@
+{
+  "installDependencies": true,
+  "startCommand": "npm run dev:stackblitz",
+  "env": {
+    "ALCHEMY_PASSWORD": "stackblitz-demo-password",
+    "BETTER_AUTH_SECRET": "85000968f86b5d30510b5b73186b914c430f8e1573614a6d75ed4cc53383517a",
+    "BETTER_AUTH_URL": "http://localhost:5173"
+  }
+}
