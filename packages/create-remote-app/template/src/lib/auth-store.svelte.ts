@@ -41,8 +41,9 @@ class AuthStore {
       this.state.isLoading = false;
       return result;
     } catch (error) {
-      this.state.isLoading = false;
       throw error;
+    } finally {
+      this.state.isLoading = false;
     }
   }
 
@@ -60,8 +61,9 @@ class AuthStore {
       };
       return result;
     } catch (error) {
-      this.state.isLoading = false;
       throw error;
+    } finally {
+      this.state.isLoading = false;
     }
   }
 
@@ -73,8 +75,9 @@ class AuthStore {
       this.state.session = null;
       this.state.isLoading = false;
     } catch (error) {
-      this.state.isLoading = false;
       throw error;
+    } finally {
+      this.state.isLoading = false;
     }
   }
 

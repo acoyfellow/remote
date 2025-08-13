@@ -11,7 +11,6 @@ export const handle: Handle = async ({ event, resolve }) => {
     
     if (!db) return error(500, 'D1 database not available');
 
-    // Initialize auth once, then reuse
     const auth = initAuth(db, event.platform?.env);
     
     try {
@@ -29,18 +28,8 @@ export const handle: Handle = async ({ event, resolve }) => {
     const response = await svelteKitHandler({ event, resolve, auth, building });
     return response;
     
-  } catch (criticalError) {
-    console.error('Critical error in handle:', criticalError);
-    
-    // Graceful fallback - serve app without auth
-    event.locals.user = null;
-    event.locals.session = null;
-    
-    try {
-      return await resolve(event);
-    } catch (resolveError) {
-      console.error('Failed to resolve even without auth:', resolveError);
-      return error(500, 'Service temporarily unavailable');
-    }
+  } catch (err) {
+    console.error(err);
+    return error(500, 'Service temporarily unavailable');
   }
 };

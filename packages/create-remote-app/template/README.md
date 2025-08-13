@@ -1,4 +1,4 @@
-# PROJECT_NAME_PLACEHOLDER
+# test-local-template
 
 Barebones SvelteKit + Better Auth + Durable Objects starter.
 

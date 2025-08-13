@@ -82,7 +82,7 @@
       </div>
     {:else}
       <!-- Unauthenticated state -->
-      <form class="space-y-4" onsubmit|preventDefault>
+      <form class="space-y-4" onsubmit={(e) => e.preventDefault()}>
         <div>
           <label for="email" class="block text-sm font-medium text-gray-700"
             >Email</label

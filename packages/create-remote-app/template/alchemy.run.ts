@@ -10,7 +10,7 @@ import {
 // TODO: Import your Durable Object class here
 // import type { MyDO } from "./worker/index.ts";
 
-const projectName = "PROJECT_NAME_PLACEHOLDER";
+const projectName = "test-local-template";
 
 const project = await alchemy(projectName, {
   password: process.env.ALCHEMY_PASSWORD || "default-password"
@@ -53,7 +53,7 @@ export const APP = await SvelteKit(`${projectName}-app`, {
   url: true,
   adopt: true,
   env: {
-    BETTER_AUTH_SECRET: process.env.BETTER_AUTH_SECRET || "AUTH_SECRET_PLACEHOLDER",
+    BETTER_AUTH_SECRET: process.env.BETTER_AUTH_SECRET || "85000968f86b5d30510b5b73186b914c430f8e1573614a6d75ed4cc53383517a",
     BETTER_AUTH_URL: process.env.BETTER_AUTH_URL || "http://localhost:5173",
   }
 });
