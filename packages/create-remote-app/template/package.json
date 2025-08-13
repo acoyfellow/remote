@@ -3,7 +3,7 @@
   "version": "0.0.1",
   "private": true,
   "scripts": {
-    "dev": "test -f .env || echo 'ALCHEMY_PASSWORD=demo-password\nBETTER_AUTH_SECRET=85000968f86b5d30510b5b73186b914c430f8e1573614a6d75ed4cc53383517a\nBETTER_AUTH_URL=http://localhost:5173' > .env && alchemy dev",
+    "dev": "alchemy dev",
     "deploy": "alchemy deploy",
     "destroy": "alchemy destroy",
     "build": "vite build",

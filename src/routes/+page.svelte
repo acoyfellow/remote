@@ -320,7 +320,7 @@
           </a>
         </div>
       </div> -->
-      <div class="text-xs font-mono text-white/70 space-y-4">
+      <div class="text-xl font-mono text-white/70 space-y-4">
         <!-- <div class="block">or:</div> -->
         <div class="text-white font-bold">bun create remote-app my-app</div>
       </div>
