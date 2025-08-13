@@ -280,7 +280,7 @@
       <div class="text-sm font-mono text-white/90">
         Create your own project with this stack:
       </div>
-      <div class="flex flex-col sm:flex-row gap-3 items-start">
+      <!-- <div class="flex flex-col sm:flex-row gap-3 items-start">
         <div class="flex w-full gap-2">
           <a
             href="https://stackblitz.com/github/acoyfellow/remote/tree/main/packages/create-remote-app/template?file=README.md&terminal=bun%20install%26%26bun%20run%20dev"
@@ -319,9 +319,9 @@
             Codespaces
           </a>
         </div>
-      </div>
+      </div> -->
       <div class="text-xs font-mono text-white/70 space-y-4">
-        <div class="block">or:</div>
+        <!-- <div class="block">or:</div> -->
         <div class="text-white font-bold">bun create remote-app my-app</div>
       </div>
     </div>
