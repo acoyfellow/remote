@@ -13,11 +13,12 @@ import type { CounterDO } from "./worker/index.ts";
 
 const projectName = "remote";
 
+console.log("env", Object.keys(process.env));
+
 const project = await alchemy(projectName, {
   password: process.env.ALCHEMY_PASSWORD || "default-password",
   stateStore: (scope) => new CloudflareStateStore(scope, {
     scriptName: `${projectName}-ci-state`,
-    stateToken: alchemy.secret(process.env.ALCHEMY_STATE_TOKEN)
   })
 });
 
