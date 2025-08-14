@@ -47,6 +47,20 @@ bun run dev
 - Complete deployment configuration
 - Detailed setup documentation
 
+## Troubleshooting
+
+If you're getting an old template version:
+
+```bash
+# Clear package manager cache
+bun pm cache rm
+# or
+npm cache clean --force
+
+# Then retry
+bun create remote-app my-app
+```
+
 ## Repository
 
 Part of the [remote](https://github.com/acoyfellow/remote) project.

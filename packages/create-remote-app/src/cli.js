@@ -11,6 +11,14 @@ const __dirname = path.dirname(__filename);
 async function main() {
   console.log(kleur.bold().cyan('\n🚀 Create Remote App\n'));
   console.log('Barebones SvelteKit + Better Auth + Durable Objects starter\n');
+  
+  // Check for latest version
+  try {
+    const currentVersion = JSON.parse(fs.readFileSync(path.join(__dirname, '../package.json'), 'utf8')).version;
+    console.log(kleur.gray(`v${currentVersion}\n`));
+  } catch (e) {
+    // Ignore version check errors
+  }
 
   const args = process.argv.slice(2);
   let projectName = args[0];
