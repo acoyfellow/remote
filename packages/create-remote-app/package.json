@@ -1,6 +1,6 @@
 {
   "name": "create-remote-app",
-  "version": "0.0.8",
+  "version": "0.0.9",
   "author": "remote",
   "repository": {
     "type": "git",
@@ -42,7 +42,7 @@
     "test": "echo 'No tests yet'",
     "prepublishOnly": "echo 'Publishing create-remote-app...'",
     "release:patch": "npm version patch && npm publish",
-    "release:minor": "npm version minor && npm publish", 
+    "release:minor": "npm version minor && npm publish",
     "release:major": "npm version major && npm publish",
     "release": "npm run release:minor"
   },
