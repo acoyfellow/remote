@@ -1,7 +1,8 @@
 <script lang="ts">
   import { getCounter, incrementCounter } from "./data.remote";
-  import { goto } from "$app/navigation";
-  import { authStore } from "$lib/auth-store.svelte";
+  import { goto, invalidateAll } from "$app/navigation";
+  import { page } from "$app/stores";
+  import { signIn, signOut, signUp } from "$lib/auth-client";
 
   let { data } = $props();
 
@@ -74,9 +75,14 @@
 
     isLoading = true;
     try {
-      await authStore.signIn(email, password);
+      const result = await signIn.email({ email, password });
+      if (result.error) {
+        alert(result.error.message);
+        return;
+      }
       email = "";
       password = "";
+      await invalidateAll();
     } catch (error) {
       alert("Sign in failed: " + (error as Error).message);
     } finally {
@@ -104,9 +110,18 @@
 
     isLoading = true;
     try {
-      await authStore.signUp(email, password);
+      const result = await signUp.email({
+        email,
+        password,
+        name: email.split("@")[0]
+      });
+      if (result.error) {
+        alert(result.error.message);
+        return;
+      }
       email = "";
       password = "";
+      await invalidateAll();
     } catch (error) {
       alert("Registration failed: " + (error as Error).message);
     } finally {
@@ -138,7 +153,7 @@
   }
 
   async function increment() {
-    if (!authStore.user) {
+    if (!$page.data.user) {
       alert("Please sign in to increment the counter");
       return;
     }
@@ -426,13 +441,13 @@
     <div class="border-4 border-black bg-white p-6 mb-4">
       <div class="text-lg font-bold uppercase mb-4">AUTH STATUS</div>
 
-      {#if authStore.user}
+      {#if $page.data.user}
         <div class="mb-4">
           <div class="text-sm font-mono mb-2">
-            USER: {authStore.user.email || authStore.user.name}
+            USER: {$page.data.user.email || $page.data.user.name}
           </div>
           <button
-            onclick={() => authStore.signOut()}
+            onclick={async () => { await signOut(); await invalidateAll(); }}
             class="border-4 border-black bg-white text-black font-bold uppercase tracking-wider transition-none cursor-pointer hover:bg-black hover:text-white disabled:bg-gray-300 disabled:text-gray-600 disabled:cursor-not-allowed disabled:hover:bg-gray-300 disabled:hover:text-gray-600 px-4 py-2"
           >
             SIGN OUT
@@ -503,7 +518,7 @@
         </button>
         <button
           onclick={increment}
-          disabled={!authStore.user || isIncrementing}
+          disabled={!$page.data.user || isIncrementing}
           class="border-4 border-black bg-white text-black font-bold uppercase tracking-wider transition-none cursor-pointer hover:bg-black hover:text-white disabled:bg-gray-300 disabled:text-gray-600 disabled:cursor-not-allowed disabled:hover:bg-gray-300 disabled:hover:text-gray-600 px-4 py-3 flex-1"
         >
           {#if isIncrementing}
@@ -514,7 +529,7 @@
             {:else}
               INCREMENTING...
             {/if}
-          {:else if !authStore.user}
+          {:else if !$page.data.user}
             +1 (AUTH REQUIRED)
           {:else}
             +1 INCREMENT
