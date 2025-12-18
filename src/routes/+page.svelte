@@ -1,7 +1,7 @@
 <script lang="ts">
   import { getCounter, incrementCounter } from "./data.remote";
   import { goto, invalidateAll } from "$app/navigation";
-  import { page } from "$app/stores";
+  import { page } from "$app/state";
   import { signIn, signOut, signUp } from "$lib/auth-client";
 
   let { data } = $props();
@@ -153,7 +153,7 @@
   }
 
   async function increment() {
-    if (!$page.data.user) {
+    if (!page.data.user) {
       alert("Please sign in to increment the counter");
       return;
     }
@@ -441,10 +441,10 @@
     <div class="border-4 border-black bg-white p-6 mb-4">
       <div class="text-lg font-bold uppercase mb-4">AUTH STATUS</div>
 
-      {#if $page.data.user}
+      {#if page.data.user}
         <div class="mb-4">
           <div class="text-sm font-mono mb-2">
-            USER: {$page.data.user.email || $page.data.user.name}
+            USER: {page.data.user.email || page.data.user.name}
           </div>
           <button
             onclick={async () => { await signOut(); await invalidateAll(); }}
@@ -518,7 +518,7 @@
         </button>
         <button
           onclick={increment}
-          disabled={!$page.data.user || isIncrementing}
+          disabled={!page.data.user || isIncrementing}
           class="border-4 border-black bg-white text-black font-bold uppercase tracking-wider transition-none cursor-pointer hover:bg-black hover:text-white disabled:bg-gray-300 disabled:text-gray-600 disabled:cursor-not-allowed disabled:hover:bg-gray-300 disabled:hover:text-gray-600 px-4 py-3 flex-1"
         >
           {#if isIncrementing}
@@ -529,7 +529,7 @@
             {:else}
               INCREMENTING...
             {/if}
-          {:else if !$page.data.user}
+          {:else if !page.data.user}
             +1 (AUTH REQUIRED)
           {:else}
             +1 INCREMENT

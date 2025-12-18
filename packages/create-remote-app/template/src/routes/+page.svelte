@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { page } from "$app/stores";
+  import { page } from "$app/state";
   import { invalidateAll } from "$app/navigation";
   import { signIn, signOut, signUp } from "$lib/auth-client";
 
@@ -78,11 +78,11 @@
       SvelteKit + Better Auth + Durable Objects
     </h1>
 
-    {#if $page.data.user}
+    {#if page.data.user}
       <!-- Authenticated state -->
       <div class="text-center">
         <p class="text-gray-600 mb-4">
-          Welcome, {$page.data.user.email}!
+          Welcome, {page.data.user.email}!
         </p>
 
         <div class="bg-green-50 border border-green-200 rounded p-4 mb-4">
