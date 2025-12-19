@@ -1,8 +1,8 @@
 import alchemy from "alchemy";
 
-import { 
-  SvelteKit, 
-  Worker, 
+import {
+  SvelteKit,
+  Worker,
   DurableObjectNamespace,
   D1Database
 } from "alchemy/cloudflare";
@@ -20,20 +20,17 @@ const project = await alchemy(projectName, {
 // Replace "MyDO" with your actual Durable Object class name
 const MY_DO = DurableObjectNamespace(`${projectName}-do`, {
   className: "MyDO", // Change this to your DO class name
-  scriptName: `${projectName}-worker`,
   sqlite: true
 });
 
 // Create D1 database for auth (required for Better Auth)
 const DB = await D1Database(`${projectName}-db`, {
-  name: `${projectName}-db`,
   migrationsDir: "migrations",
   adopt: true,
 });
 
 // Create the worker that hosts your Durable Objects
 export const WORKER = await Worker(`${projectName}-worker`, {
-  name: `${projectName}-worker`,
   entrypoint: "./worker/index.ts",
   adopt: true,
   bindings: {
@@ -44,7 +41,6 @@ export const WORKER = await Worker(`${projectName}-worker`, {
 
 // Create the SvelteKit app
 export const APP = await SvelteKit(`${projectName}-app`, {
-  name: `${projectName}-app`,
   bindings: {
     MY_DO,   // Make your DO available to SvelteKit
     WORKER,  // Make worker available for service bindings
