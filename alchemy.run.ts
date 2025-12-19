@@ -15,9 +15,7 @@ const projectName = "remote";
 
 const app = await alchemy(projectName, {
   password: process.env.ALCHEMY_PASSWORD || "default-password",
-  stateStore: (scope) => new CloudflareStateStore(scope, {
-    forceUpdate: true, // TODO: remove after first successful deploy
-  })
+  stateStore: (scope) => new CloudflareStateStore(scope),
 });
 
 // For prod: use fixed names (protect existing resources)

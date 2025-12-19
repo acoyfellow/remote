@@ -26,6 +26,7 @@
 	"description": "Barebones starter for authenticated apps with persistent edge state - SvelteKit + Better Auth + Durable Objects",
 	"keywords": ["sveltekit", "better-auth", "cloudflare", "durable-objects", "alchemy", "remote-functions", "typescript"],
 	"scripts": {
+		"postinstall": "node patches/fix-alchemy-d1.js",
 		"dev": "alchemy dev",
 		"deploy": "alchemy deploy",
 		"destroy": "alchemy destroy",
