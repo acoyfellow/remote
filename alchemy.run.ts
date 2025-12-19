@@ -15,7 +15,9 @@ const projectName = "remote";
 
 const project = await alchemy(projectName, {
   password: process.env.ALCHEMY_PASSWORD || "default-password",
-  stateStore: (scope) => new CloudflareStateStore(scope)
+  stateStore: (scope) => new CloudflareStateStore(scope, {
+    forceUpdate: true, // TODO: remove after first successful deploy
+  })
 });
 
 const COUNTER_DO = DurableObjectNamespace<CounterDO>(`${projectName}-do`, {
@@ -25,12 +27,14 @@ const COUNTER_DO = DurableObjectNamespace<CounterDO>(`${projectName}-do`, {
 
 // Create D1 database for auth
 const DB = await D1Database(`${projectName}-db`, {
+  name: `${projectName}-db`,
   migrationsDir: "migrations",
   adopt: true,
 });
 
 // Create the worker
 export const WORKER = await Worker(`${projectName}-worker`, {
+  name: `${projectName}-worker`,
   entrypoint: "./worker/index.ts",
   adopt: true,
   bindings: {
@@ -40,6 +44,7 @@ export const WORKER = await Worker(`${projectName}-worker`, {
 });
 
 export const APP = await SvelteKit(`${projectName}-app`, {
+  name: `${projectName}-app`,
   bindings: {
     COUNTER_DO,
     WORKER,
