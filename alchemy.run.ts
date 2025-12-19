@@ -1,8 +1,8 @@
 import alchemy from "alchemy";
 
-import { 
-  SvelteKit, 
-  Worker, 
+import {
+  SvelteKit,
+  Worker,
   DurableObjectNamespace,
   D1Database
 } from "alchemy/cloudflare";
@@ -12,11 +12,6 @@ import { CloudflareStateStore } from "alchemy/state";
 import type { CounterDO } from "./worker/index.ts";
 
 const projectName = "remote";
-
-console.log({
-  stateToken: process.env.ALCHEMY_STATE_TOKEN,
-  password: process.env.ALCHEMY_PASSWORD,
-});
 
 const project = await alchemy(projectName, {
   password: process.env.ALCHEMY_PASSWORD || "default-password",
