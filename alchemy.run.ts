@@ -13,29 +13,35 @@ import type { CounterDO } from "./worker/index.ts";
 
 const projectName = "remote";
 
-const project = await alchemy(projectName, {
+const app = await alchemy(projectName, {
   password: process.env.ALCHEMY_PASSWORD || "default-password",
   stateStore: (scope) => new CloudflareStateStore(scope, {
     forceUpdate: true, // TODO: remove after first successful deploy
   })
 });
 
+// For prod: use fixed names (protect existing resources)
+// For previews (pr-123): use stage-scoped names (isolated, disposable)
+const isProd = app.stage === "prod";
+const prefix = isProd ? projectName : `${app.stage}-${projectName}`;
+
 const COUNTER_DO = DurableObjectNamespace<CounterDO>(`${projectName}-do`, {
   className: "CounterDO",
-  scriptName: `${projectName}-worker`,
+  scriptName: `${prefix}-worker`,
   sqlite: true
 });
 
-// Create D1 database for auth
+// D1 database for auth
+// IMPORTANT: prod uses "remote-db", previews use "pr-123-remote-db"
 const DB = await D1Database(`${projectName}-db`, {
-  name: `${projectName}-db`,
+  name: `${prefix}-db`,
   migrationsDir: "migrations",
   adopt: true,
 });
 
-// Create the worker
+// Worker that hosts Durable Objects
 export const WORKER = await Worker(`${projectName}-worker`, {
-  name: `${projectName}-worker`,
+  name: `${prefix}-worker`,
   entrypoint: "./worker/index.ts",
   adopt: true,
   bindings: {
@@ -44,8 +50,9 @@ export const WORKER = await Worker(`${projectName}-worker`, {
   url: false
 });
 
+// SvelteKit app
 export const APP = await SvelteKit(`${projectName}-app`, {
-  name: `${projectName}-app`,
+  name: `${prefix}-app`,
   bindings: {
     COUNTER_DO,
     WORKER,
@@ -59,4 +66,4 @@ export const APP = await SvelteKit(`${projectName}-app`, {
   }
 });
 
-await project.finalize(); 
+await app.finalize(); 
