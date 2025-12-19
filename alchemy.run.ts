@@ -22,6 +22,7 @@ const project = await alchemy(projectName, {
 
 const COUNTER_DO = DurableObjectNamespace<CounterDO>(`${projectName}-do`, {
   className: "CounterDO",
+  scriptName: `${projectName}-worker`,
   sqlite: true
 });
 
