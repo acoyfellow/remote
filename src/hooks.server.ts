@@ -1,4 +1,4 @@
-import { initAuth, getAuth } from "$lib/auth";
+import { initAuth } from "$lib/auth";
 import { svelteKitHandler } from "better-auth/svelte-kit";
 import { building } from "$app/environment";
 import { error } from "@sveltejs/kit";
@@ -8,12 +8,12 @@ import type { Handle } from "@sveltejs/kit";
 export const handle: Handle = async ({ event, resolve }) => {
   try {
     const db = event.platform?.env?.DB;
-    
+
     if (!db) return error(500, 'D1 database not available');
 
-    // Initialize auth once, then reuse
-    const auth = initAuth(db, event.platform?.env);
-    
+    // Initialize auth for this origin (previews/prod/local)
+    const auth = initAuth(db, event.platform?.env, event.url.origin);
+
     try {
       const session = await auth.api.getSession({
         headers: event.request.headers,
@@ -28,14 +28,14 @@ export const handle: Handle = async ({ event, resolve }) => {
 
     const response = await svelteKitHandler({ event, resolve, auth, building });
     return response;
-    
+
   } catch (criticalError) {
     console.error('Critical error in handle:', criticalError);
-    
+
     // Graceful fallback - serve app without auth
     event.locals.user = null;
     event.locals.session = null;
-    
+
     try {
       return await resolve(event);
     } catch (resolveError) {

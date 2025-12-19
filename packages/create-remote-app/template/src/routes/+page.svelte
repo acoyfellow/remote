@@ -1,8 +1,11 @@
 <script lang="ts">
-  import { authStore } from "$lib/auth-store.svelte";
+  import { page } from "$app/state";
+  import { invalidateAll } from "$app/navigation";
+  import { signIn, signOut, signUp } from "$lib/auth-client";
 
   let email = $state("");
   let password = $state("");
+  let isLoading = $state(false);
 
   async function handleSignIn() {
     if (!email.trim() || !password.trim()) {
@@ -10,12 +13,20 @@
       return;
     }
 
+    isLoading = true;
     try {
-      await authStore.signIn(email, password);
+      const result = await signIn.email({ email, password });
+      if (result.error) {
+        alert(result.error.message);
+        return;
+      }
       email = "";
       password = "";
+      await invalidateAll();
     } catch (error) {
       alert("Sign in failed: " + (error as Error).message);
+    } finally {
+      isLoading = false;
     }
   }
 
@@ -30,13 +41,30 @@
       return;
     }
 
+    isLoading = true;
     try {
-      await authStore.signUp(email, password);
+      const result = await signUp.email({
+        email,
+        password,
+        name: email.split("@")[0]
+      });
+      if (result.error) {
+        alert(result.error.message);
+        return;
+      }
       email = "";
       password = "";
+      await invalidateAll();
     } catch (error) {
       alert("Sign up failed: " + (error as Error).message);
+    } finally {
+      isLoading = false;
     }
+  }
+
+  async function handleSignOut() {
+    await signOut();
+    await invalidateAll();
   }
 </script>
 
@@ -50,11 +78,11 @@
       SvelteKit + Better Auth + Durable Objects
     </h1>
 
-    {#if authStore.user}
+    {#if page.data.user}
       <!-- Authenticated state -->
       <div class="text-center">
         <p class="text-gray-600 mb-4">
-          Welcome, {authStore.user.email}!
+          Welcome, {page.data.user.email}!
         </p>
 
         <div class="bg-green-50 border border-green-200 rounded p-4 mb-4">
@@ -74,7 +102,7 @@
         </div>
 
         <button
-          onclick={() => authStore.signOut()}
+          onclick={handleSignOut}
           class="w-full bg-gray-600 text-white py-2 px-4 rounded hover:bg-gray-700"
         >
           Sign Out
@@ -113,19 +141,19 @@
           <button
             type="button"
             onclick={handleSignIn}
-            disabled={authStore.isLoading}
+            disabled={isLoading}
             class="flex-1 bg-blue-600 text-white py-2 px-4 rounded hover:bg-blue-700 disabled:opacity-50"
           >
-            {authStore.isLoading ? "Loading..." : "Sign In"}
+            {isLoading ? "Loading..." : "Sign In"}
           </button>
 
           <button
             type="button"
             onclick={handleSignUp}
-            disabled={authStore.isLoading}
+            disabled={isLoading}
             class="flex-1 bg-green-600 text-white py-2 px-4 rounded hover:bg-green-700 disabled:opacity-50"
           >
-            {authStore.isLoading ? "Loading..." : "Sign Up"}
+            {isLoading ? "Loading..." : "Sign Up"}
           </button>
         </div>
       </form>

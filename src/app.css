@@ -8,6 +8,8 @@ body {
   font-family: 'Space Grotesk', monospace;
   line-height: 1.2;
   font-weight: 400;
+  color: #000;
+  background-color: #fff;
 }
 
 /* Futuristic Brutalist Animations */

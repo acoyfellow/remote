@@ -27,7 +27,6 @@ src/
 ├── lib/
 │   ├── auth.ts              # Better Auth configuration
 │   ├── auth-client.ts       # Auth client setup
-│   ├── auth-store.svelte.ts # Auth state management
 │   └── schema.ts            # Database schema
 ├── routes/
 │   ├── api/auth/[...all]/   # Better Auth API routes
