@@ -1,2 +1,3 @@
 # Ralph Progress
 - Initialized scaffold and baseline state.
+- Clarified story naming and guard behavior.

@@ -21,7 +21,7 @@
   },
   {
     "id": "S3",
-    "title": "Make README describe how to run",
+    "title": "Update README with usage instructions",
     "status": "todo",
     "acceptanceCriteria": [
       "README documents the Ralph loop triggers",

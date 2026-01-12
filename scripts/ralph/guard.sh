@@ -18,7 +18,7 @@ if [[ ! -f "${constraints_file}" ]]; then
   exit 1
 fi
 
-if grep -Eq "^-\\s*PAUSED:\\s*true" AGENTS.md; then
+if grep -Eq "^[[:space:]-]*PAUSED:[[:space:]]*true" AGENTS.md; then
   echo "Guard blocked: AGENTS.md is paused" >&2
   exit 1
 fi
@@ -35,6 +35,8 @@ if [[ -z "${files_changed}" ]]; then
   exit 0
 fi
 
+readarray -t changed_list <<< "${files_changed}"
+
 file_count=$(echo "${files_changed}" | wc -l | tr -d ' ')
 if [[ "${max_files}" -gt 0 && "${file_count}" -gt "${max_files}" ]]; then
   echo "Guard failed: ${file_count} files changed (max ${max_files})." >&2
@@ -48,11 +50,14 @@ if [[ "${max_lines}" -gt 0 && "${line_total}" -gt "${max_lines}" ]]; then
 fi
 
 if [[ ${#forbidden_paths[@]} -gt 0 ]]; then
-  for path in "${forbidden_paths[@]}"; do
-    if echo "${files_changed}" | grep -E "^${path}(/|$)" >/dev/null 2>&1; then
-      echo "Guard failed: forbidden path touched (${path})." >&2
-      exit 1
-    fi
+  for file in "${changed_list[@]}"; do
+    for path in "${forbidden_paths[@]}"; do
+      [[ -z "${path}" ]] && continue
+      if [[ "${file}" == "${path}" || "${file}" == "${path}/"* ]]; then
+        echo "Guard failed: forbidden path touched (${path})." >&2
+        exit 1
+      fi
+    done
   done
 fi
 
