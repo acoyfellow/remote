@@ -7,6 +7,9 @@ on:
       - "AGENTS.md"
       - "scripts/ralph/**"
 
+permissions:
+  contents: write
+
 jobs:
   ralph:
     # 198982749 is the Copilot app actor id fallback when RALPH_BOT_ID is unset.
