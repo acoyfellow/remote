@@ -1,0 +1,63 @@
+name: Ralph Loop
+
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - "AGENTS.md"
+      - "scripts/ralph/**"
+
+permissions:
+  contents: write
+
+jobs:
+  ralph:
+    # 198982749 is the Copilot app actor id fallback when RALPH_BOT_ID is unset.
+    if: ${{ github.event_name == 'workflow_dispatch' || format('{0}', github.actor_id) == vars.RALPH_BOT_ID || github.actor_id == 198982749 }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.RALPH_PAT }}
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Install jq
+        run: sudo apt-get update && sudo apt-get install -y jq
+
+      - name: Install OpenCode
+        run: npm install -g @github/opencode
+
+      - name: Validate state files
+        run: |
+          jq empty scripts/ralph/prd.json
+          jq empty scripts/ralph/constraints.json
+          jq empty scripts/ralph/failure.json
+
+      - name: Ensure guard is executable
+        run: chmod +x scripts/ralph/guard.sh
+
+      - name: Run OpenCode iteration
+        run: opencode run --config .opencode/opencode.json
+
+      - name: Run guard
+        run: bash scripts/ralph/guard.sh scripts/ralph/constraints.json
+
+      - name: Commit and push changes
+        env:
+          GIT_AUTHOR_NAME: ralph-bot
+          GIT_AUTHOR_EMAIL: ralph@example.com
+          GIT_COMMITTER_NAME: ralph-bot
+          GIT_COMMITTER_EMAIL: ralph@example.com
+        run: |
+          if [[ -z "$(git status --porcelain)" ]]; then
+            echo "No changes to commit."
+            exit 0
+          fi
+          git add .
+          git commit -m "chore: ralph iteration"
+          git push

@@ -1,0 +1,16 @@
+{
+  "workdir": ".",
+  "agents": [
+    {
+      "id": "ralph",
+      "agentFile": "AGENTS.md",
+      "state": {
+        "prd": "scripts/ralph/prd.json",
+        "progress": "scripts/ralph/progress.txt",
+        "constraints": "scripts/ralph/constraints.json",
+        "failure": "scripts/ralph/failure.json"
+      },
+      "maxIterations": 1
+    }
+  ]
+}
