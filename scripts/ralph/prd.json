@@ -1,0 +1,32 @@
+[
+  {
+    "id": "S1",
+    "title": "Boot Ralph automation scaffold",
+    "status": "todo",
+    "acceptanceCriteria": [
+      "Required Ralph state files and OpenCode config exist in the repo",
+      "Guard script is available for later iterations"
+    ],
+    "notes": ""
+  },
+  {
+    "id": "S2",
+    "title": "Add/verify diff guard in CI",
+    "status": "todo",
+    "acceptanceCriteria": [
+      "Guard runs in the Ralph workflow",
+      "Guard fails on forbidden paths or oversized diffs"
+    ],
+    "notes": ""
+  },
+  {
+    "id": "S3",
+    "title": "Make README describe how to run",
+    "status": "todo",
+    "acceptanceCriteria": [
+      "README documents the Ralph loop triggers",
+      "README lists required secrets and state files"
+    ],
+    "notes": ""
+  }
+]

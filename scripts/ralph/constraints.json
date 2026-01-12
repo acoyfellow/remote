@@ -1,0 +1,7 @@
+{
+  "maxFilesChanged": 25,
+  "maxLinesChanged": 400,
+  "forbiddenPaths": ["node_modules", "dist", "build", ".svelte-kit", ".next"],
+  "requireProgressUpdate": true,
+  "maxFailureRetries": 3
+}

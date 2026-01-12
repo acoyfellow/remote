@@ -19,6 +19,16 @@ npx create-remote-app my-app
 
 Then follow the setup guide in your new project's README.
 
+## Ralph Loop Automation
+
+This repo includes a minimal Ralph loop to run one story at a time.
+
+1. Add a repo-scoped PAT secret named `RALPH_PAT` (contents + workflow).
+2. Trigger the **Ralph Loop** workflow manually, or push changes to `AGENTS.md` or `scripts/ralph/**` (only bot pushes auto-run).
+3. The loop reads `AGENTS.md` plus `scripts/ralph/{prd.json,progress.txt,constraints.json,failure.json}`, runs `scripts/ralph/guard.sh`, and commits if the guard passes.
+
+State files live under `scripts/ralph/` and `.opencode/opencode.json` wires them into OpenCode.
+
 ## What This Repo Shows
 
 This project demonstrates:

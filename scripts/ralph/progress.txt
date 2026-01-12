@@ -1,0 +1,2 @@
+# Ralph Progress
+- Initialized scaffold and baseline state.
