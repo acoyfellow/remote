@@ -22,4 +22,4 @@
 ## Footguns
 - Do not touch build artifacts (dist, node_modules, .svelte-kit, build).
 - Avoid changing more than 25 files or 400 total lines per iteration.
-- Guard must pass before any commit or push.***
+- Guard must pass before any commit or push.

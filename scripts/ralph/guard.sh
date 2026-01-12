@@ -41,18 +41,20 @@ if [[ "${max_files}" -gt 0 && "${file_count}" -gt "${max_files}" ]]; then
   exit 1
 fi
 
-line_total=$(git diff --numstat | awk '{add+=$1; del+=$2} END {print add+del}')
+line_total=$(git diff --numstat | awk '{add+=$1; del+=$2} END {total=add+del; if (total=="") print 0; else print total}')
 if [[ "${max_lines}" -gt 0 && "${line_total}" -gt "${max_lines}" ]]; then
   echo "Guard failed: ${line_total} total line changes (max ${max_lines})." >&2
   exit 1
 fi
 
-for path in "${forbidden_paths[@]}"; do
-  if echo "${files_changed}" | grep -E "^${path}(/|$)" >/dev/null 2>&1; then
-    echo "Guard failed: forbidden path touched (${path})." >&2
-    exit 1
-  fi
-done
+if [[ ${#forbidden_paths[@]} -gt 0 ]]; then
+  for path in "${forbidden_paths[@]}"; do
+    if echo "${files_changed}" | grep -E "^${path}(/|$)" >/dev/null 2>&1; then
+      echo "Guard failed: forbidden path touched (${path})." >&2
+      exit 1
+    fi
+  done
+fi
 
 if [[ "${require_progress}" == "true" ]]; then
   prd_changed=$(echo "${files_changed}" | grep -c "scripts/ralph/prd.json" || true)
