@@ -28,7 +28,7 @@ max_lines=$(jq -r '.maxLinesChanged // 0' "${constraints_file}")
 require_progress=$(jq -r '.requireProgressUpdate // false' "${constraints_file}")
 readarray -t forbidden_paths < <(jq -r '.forbiddenPaths[]?' "${constraints_file}")
 
-files_changed=$(git diff --name-only)
+files_changed=$(git diff HEAD --name-only)
 
 if [[ -z "${files_changed}" ]]; then
   echo "Guard note: no changes detected; nothing to validate."
@@ -43,7 +43,7 @@ if [[ "${max_files}" -gt 0 && "${file_count}" -gt "${max_files}" ]]; then
   exit 1
 fi
 
-line_total=$(git diff --numstat | awk '{add+=$1; del+=$2} END {total=add+del; if (total=="") print 0; else print total}')
+line_total=$(git diff HEAD --numstat | awk '{add+=$1; del+=$2} END {total=add+del; if (total=="") print 0; else print total}')
 if [[ "${max_lines}" -gt 0 && "${line_total}" -gt "${max_lines}" ]]; then
   echo "Guard failed: ${line_total} total line changes (max ${max_lines})." >&2
   exit 1
