@@ -27,23 +27,20 @@ max_files=$(jq -r '.maxFilesChanged // 0' "${constraints_file}")
 max_lines=$(jq -r '.maxLinesChanged // 0' "${constraints_file}")
 require_progress=$(jq -r '.requireProgressUpdate // false' "${constraints_file}")
 readarray -t forbidden_paths < <(jq -r '.forbiddenPaths[]?' "${constraints_file}")
+readarray -t changed_list < <(git diff HEAD --name-only)
 
-files_changed=$(git diff HEAD --name-only)
-
-if [[ -z "${files_changed}" ]]; then
+if [[ ${#changed_list[@]} -eq 0 ]]; then
   echo "Guard note: no changes detected; nothing to validate."
   exit 0
 fi
 
-readarray -t changed_list <<< "${files_changed}"
-
-file_count=$(echo "${files_changed}" | wc -l | tr -d ' ')
+file_count=${#changed_list[@]}
 if [[ "${max_files}" -gt 0 && "${file_count}" -gt "${max_files}" ]]; then
   echo "Guard failed: ${file_count} files changed (max ${max_files})." >&2
   exit 1
 fi
 
-line_total=$(git diff HEAD --numstat | awk '{add+=$1; del+=$2} END {total=add+del; if (total=="") print 0; else print total}')
+line_total=$(git diff HEAD --numstat | awk '{add+=$1; del+=$2} END {total=add+del; if (NR==0) print 0; else print total}')
 if [[ "${max_lines}" -gt 0 && "${line_total}" -gt "${max_lines}" ]]; then
   echo "Guard failed: ${line_total} total line changes (max ${max_lines})." >&2
   exit 1
@@ -64,8 +61,12 @@ if [[ ${#forbidden_paths[@]} -gt 0 ]]; then
 fi
 
 if [[ "${require_progress}" == "true" ]]; then
-  prd_changed=$(echo "${files_changed}" | grep -c "scripts/ralph/prd.json" || true)
-  progress_changed=$(echo "${files_changed}" | grep -c "scripts/ralph/progress.txt" || true)
+  prd_changed=0
+  progress_changed=0
+  for file in "${changed_list[@]}"; do
+    [[ "${file}" == "scripts/ralph/prd.json" ]] && prd_changed=$((prd_changed+1))
+    [[ "${file}" == "scripts/ralph/progress.txt" ]] && progress_changed=$((progress_changed+1))
+  done
   if [[ "${prd_changed}" -gt 0 && "${progress_changed}" -eq 0 ]]; then
     echo "Guard failed: prd.json changed without updating progress.txt." >&2
     exit 1
