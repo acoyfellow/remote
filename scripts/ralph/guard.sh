@@ -18,7 +18,7 @@ if [[ ! -f "${constraints_file}" ]]; then
   exit 1
 fi
 
-if grep -Eq "^[[:space:]-]*PAUSED:[[:space:]]*true" AGENTS.md; then
+if grep -Eq "^[[:space:]]*-[[:space:]]*PAUSED:[[:space:]]*true" AGENTS.md; then
   echo "Guard blocked: AGENTS.md is paused" >&2
   exit 1
 fi
@@ -53,10 +53,12 @@ if [[ ${#forbidden_paths[@]} -gt 0 ]]; then
   for file in "${changed_list[@]}"; do
     for path in "${forbidden_paths[@]}"; do
       [[ -z "${path}" ]] && continue
-      if [[ "${file}" == "${path}" || "${file}" == "${path}/"* ]]; then
-        echo "Guard failed: forbidden path touched (${path})." >&2
-        exit 1
-      fi
+      case "${file}" in
+        "${path}"|"${path}"/*)
+          echo "Guard failed: forbidden path touched (${path})." >&2
+          exit 1
+          ;;
+      esac
     done
   done
 fi

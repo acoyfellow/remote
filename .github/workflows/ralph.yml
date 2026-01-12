@@ -9,7 +9,7 @@ on:
 
 jobs:
   ralph:
-    if: ${{ github.event_name == 'workflow_dispatch' || github.actor_id == 198982749 }}
+    if: ${{ github.event_name == 'workflow_dispatch' || format('{0}', github.actor_id) == vars.RALPH_BOT_ID || github.actor_id == 198982749 }}
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
